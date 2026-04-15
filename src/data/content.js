@@ -82,6 +82,9 @@ export const PROJECTS = {
     {
       id: 'misc-project',
       title: 'Systems notebook',
+      // Explicit value so it doesn't accidentally inherit the average weight.
+      // Tune this number to adjust how much space this tile occupies.
+      value: 0.5,
       body: 'A running collection of backend architecture notes, reliability patterns, and practical experiments from course and internship work.',
       tags: ['Architecture', 'Notes', 'Backend'],
       link: 'https://github.com/KamenKarchev',

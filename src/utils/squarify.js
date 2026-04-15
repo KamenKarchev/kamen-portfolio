@@ -27,6 +27,7 @@ function layoutRow(row, rect, horizontal, out) {
   if (rowArea <= 0) return rect
 
   if (horizontal) {
+    // Items are stacked left-to-right; the row occupies a horizontal band
     const rowHeight = rowArea / rect.width
     let cursorX = rect.x
     for (const item of row) {
@@ -42,6 +43,7 @@ function layoutRow(row, rect, horizontal, out) {
     }
   }
 
+  // Items are stacked top-to-bottom; the row occupies a vertical band
   const rowWidth = rowArea / rect.height
   let cursorY = rect.y
   for (const item of row) {
@@ -59,11 +61,11 @@ function layoutRow(row, rect, horizontal, out) {
 
 function normalizeItems(items, width, height) {
   const safeItems = items.filter(item => item && item.id)
-  const valued = safeItems.filter(item => Number.isFinite(item.value))
-  const auto = safeItems.filter(item => !Number.isFinite(item.value))
+  const valued = safeItems.filter(item => Number.isFinite(item.value) && item.value > 0)
+  const auto = safeItems.filter(item => !Number.isFinite(item.value) || item.value <= 0)
 
-  const valuedSum = valued.reduce((acc, item) => acc + Math.max(item.value, 0), 0)
-  const valuedAvg = valued.length ? (valuedSum / valued.length) : 1
+  const valuedSum = valued.reduce((acc, item) => acc + item.value, 0)
+  const valuedAvg = valued.length ? valuedSum / valued.length : 1
   const autoValue = valuedAvg > 0 ? valuedAvg : 1
   const totalWeight = valuedSum + auto.length * autoValue
   const containerArea = Math.max(0, width) * Math.max(0, height)
@@ -72,7 +74,8 @@ function normalizeItems(items, width, height) {
 
   return safeItems
     .map(item => {
-      const weight = Number.isFinite(item.value) ? Math.max(item.value, 0) : autoValue
+      const weight =
+        Number.isFinite(item.value) && item.value > 0 ? item.value : autoValue
       return {
         id: item.id,
         area: (weight / totalWeight) * containerArea,
@@ -81,6 +84,20 @@ function normalizeItems(items, width, height) {
     .sort((a, b) => b.area - a.area)
 }
 
+/**
+ * Squarified Treemap — Bruls, Huizing, van Wijk (2000)
+ *
+ * Items are placed largest-first into the free rectangle, building rows
+ * along the shorter side. A new item is added to the current row only
+ * while doing so *strictly improves* the worst aspect ratio; otherwise
+ * the row is committed and a fresh row starts on the remaining rectangle.
+ *
+ * @param {Array<{id: string, value: number}>} items
+ * @param {number} containerWidth
+ * @param {number} containerHeight
+ * @param {number} gap  - pixel gap between tiles (default 8)
+ * @returns {Array<{id, x, y, width, height}>}
+ */
 export function squarify(items, containerWidth, containerHeight, gap = 8) {
   const width = Math.max(0, containerWidth)
   const height = Math.max(0, containerHeight)
@@ -92,7 +109,8 @@ export function squarify(items, containerWidth, containerHeight, gap = 8) {
   let remaining = [...normalized]
   let freeRect = { x: 0, y: 0, width, height }
 
-  while (remaining.length && freeRect.width > 0 && freeRect.height > 0) {
+  while (remaining.length > 0 && freeRect.width > 1 && freeRect.height > 1) {
+    // Recompute orientation for the current free rect on every iteration
     const horizontal = freeRect.width >= freeRect.height
     const shortSide = horizontal ? freeRect.height : freeRect.width
 
@@ -101,7 +119,8 @@ export function squarify(items, containerWidth, containerHeight, gap = 8) {
 
     while (i < remaining.length) {
       const candidate = [...row, remaining[i]]
-      if (worstAspectRatio(candidate, shortSide) <= worstAspectRatio(row, shortSide)) {
+      // Only extend the row when aspect ratio *strictly* improves
+      if (worstAspectRatio(candidate, shortSide) < worstAspectRatio(row, shortSide)) {
         row = candidate
         i += 1
       } else {
@@ -118,8 +137,7 @@ export function squarify(items, containerWidth, containerHeight, gap = 8) {
     id: rect.id,
     x: rect.x + halfGap,
     y: rect.y + halfGap,
-    width: Math.max(0, rect.width - (halfGap * 2)),
-    height: Math.max(0, rect.height - (halfGap * 2)),
+    width: Math.max(0, rect.width - halfGap * 2),
+    height: Math.max(0, rect.height - halfGap * 2),
   }))
 }
-
