@@ -1,71 +1,32 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { PROJECTS } from '../data/content'
-import { squarify } from '../utils/squarify'
-
-const Tags = ({ items }) => (
-  <div className="tags">
-    {items.map(t => <span className="tag" key={t}>{t}</span>)}
-  </div>
-)
-
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value))
-}
+import { packProjects } from '../utils/potpack'
 
 export default function ProjectsArticle() {
   const containerRef = useRef(null)
-  const [layout, setLayout] = useState({})
-  const [layoutHeight, setLayoutHeight] = useState(0)
+  const [layout, setLayout]       = useState({ boxes: [], height: 0 })
 
-  const projects = useMemo(
-    () => [PROJECTS.lead, ...PROJECTS.mini],
-    [],
-  )
+  const projects = useMemo(() => [PROJECTS.lead, ...PROJECTS.mini], [])
 
   useLayoutEffect(() => {
-    const container = containerRef.current
-    if (!container) return undefined
+    const el = containerRef.current
+    if (!el) return
 
-    const updateLayout = () => {
-      const width = container.clientWidth
-      // Guard: don't compute squarify until the container has a real width
-      if (width <= 0) return
-
-      const height = clamp(Math.round(width * 1.18), 560, 980)
-      setLayoutHeight(height)
-
-      const rects = squarify(
-        projects.map(item => ({
-          id: item.id,
-          value: Number.isFinite(item.value) && item.value > 0 ? item.value : undefined,
-        })),
-        width,
-        height,
-        10,
-      )
-
-      setLayout(Object.fromEntries(rects.map(r => [r.id, r])))
+    const run = () => {
+      const w = el.clientWidth
+      if (w <= 0) return
+      const items = projects.map(p => ({ id: p.id, value: p.value ?? 1 }))
+      setLayout(packProjects(items, w))
     }
 
-    updateLayout()
-    const observer = new ResizeObserver(updateLayout)
-    observer.observe(container)
-    return () => observer.disconnect()
+    run()
+    const ro = new ResizeObserver(run)
+    ro.observe(el)
+    return () => ro.disconnect()
   }, [projects])
 
-  const getRectStyle = (id) => {
-    const rect = layout[id]
-    if (!rect) return { opacity: 0, pointerEvents: 'none' }
-    return {
-      left: `${rect.x}px`,
-      top: `${rect.y}px`,
-      width: `${rect.width}px`,
-      height: `${rect.height}px`,
-      opacity: 1,
-      pointerEvents: 'auto',
-    }
-  }
+  const byId = Object.fromEntries(layout.boxes.map(b => [b.id, b]))
 
   return (
     <motion.section
@@ -86,50 +47,42 @@ export default function ProjectsArticle() {
         </div>
 
         <div
-          className="projects-layout"
           ref={containerRef}
-          style={layoutHeight > 0 ? { height: `${layoutHeight}px` } : undefined}
+          className="projects-layout"
+          style={layout.height > 0 ? { height: layout.height } : undefined}
         >
-          {projects.map(project => {
-            const rect = layout[project.id]
-            const area = rect ? rect.width * rect.height : 0
-            const minSide = rect ? Math.min(rect.width, rect.height) : 0
+          {projects.map(p => {
+            const b = byId[p.id]
+            if (!b) return null
 
-            const isLarge  = area > 110_000 || minSide > 260
-            const showImage = minSide > 180
-            const showBody  = minSide > 170 && area > 45_000
-            const showTags  = minSide > 150 && area > 38_000
-
-            const titleSize =
-              minSide > 280 ? 'clamp(2rem, 3vw, 2.8rem)'
-              : minSide > 180 ? 'clamp(1.4rem, 2.3vw, 2rem)'
-              : 'clamp(1rem, 1.6vw, 1.25rem)'
+            const minSide = Math.min(b.w, b.h)
+            const area    = b.w * b.h
+            const isLarge  = area > 90_000 || minSide > 240
+            const showImg  = minSide > 160
+            const showBody = minSide > 155 && area > 40_000
+            const showTags = minSide > 140 && area > 32_000
+            const titleSize = minSide > 260 ? '2rem' : minSide > 160 ? '1.3rem' : '1rem'
 
             return (
               <motion.article
-                key={project.id}
+                key={p.id}
                 className={`projects-item ${isLarge ? 'lead-project' : 'mini-project'}`}
-                style={getRectStyle(project.id)}
+                style={{ left: b.x, top: b.y, width: b.w, height: b.h, opacity: 1 }}
                 whileHover={{ y: -3, boxShadow: 'var(--shadow-lg)' }}
                 transition={{ duration: .2 }}
               >
-                {showImage && (
+                {showImg && (
                   <div className={isLarge ? 'project-visual' : 'mini-visual'}>
-                    {project.image && (
-                      <img src={project.image} alt={project.title} />
-                    )}
+                    {p.image && <img src={p.image} alt={p.title} />}
                   </div>
                 )}
-
-                <h4 className="project-title" style={{ fontSize: titleSize }}>
-                  {project.title}
-                </h4>
-
-                {showBody && (
-                  <p className="project-body">{project.body}</p>
+                <h4 className="project-title" style={{ fontSize: titleSize }}>{p.title}</h4>
+                {showBody && <p className="project-body">{p.body}</p>}
+                {showTags && (
+                  <div className="tags">
+                    {p.tags.map(t => <span className="tag" key={t}>{t}</span>)}
+                  </div>
                 )}
-
-                {showTags && <Tags items={project.tags} />}
               </motion.article>
             )
           })}
