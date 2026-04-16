@@ -50,48 +50,59 @@ export const TIMELINE = [
   },
 ]
 
-export const PROJECTS = {
-  lead: {
+/**
+ * PROJECTS — flat array, order matters for packing.
+ *
+ * w  — tile width  as % of the container width
+ * h  — tile height as % of the container width  (relative to width so it
+ *      scales consistently; 50w × 50h = a square half the container wide)
+ *
+ * Tiles are packed shelf by shelf left-to-right in the order listed.
+ * When a tile doesn't fit on the current shelf it wraps to the next.
+ * To add a project: add an entry here with your desired w/h percentages.
+ */
+export const PROJECTS = [
+  {
     id: 'hero-project',
     title: 'DopeyUserAPI',
-    value: 3,
+    w: 55,   // % of container width
+    h: 55,   // % of container width
     body: 'A Phoenix backend for authentication, user flows, tokens, and email logic, built to reflect production-minded backend thinking.',
     tags: ['Elixir', 'Phoenix', 'PostgreSQL', 'Docker', 'OAuth'],
     link: 'https://github.com/KamenKarchev',
     image: '/images/project-dopeyuserapi.jpg',
   },
-  mini: [
-    {
-      id: 'side-project',
-      title: 'PipePrompt',
-      value: 1.5,
-      body: 'An Android app built with Kotlin and Jetpack Compose, focused on fast prompt workflows and clean mobile interaction.',
-      tags: ['Kotlin', 'Compose', 'Android'],
-      link: 'https://github.com/KamenKarchev',
-      image: '/images/project-pipeprompt.jpg',
-    },
-    {
-      id: 'small-project',
-      value: 0.8,
-      title: 'Media and storytelling',
-      body: 'Creative and media work that proves I can shape narratives, not just implement features.',
-      tags: ['Photoshop', 'Video', 'Script'],
-      link: '#',
-      image: '/images/project-media-storytelling.jpg',
-    },
-    {
-      id: 'misc-project',
-      title: 'Systems notebook',
-      // Explicit value so it doesn't accidentally inherit the average weight.
-      // Tune this number to adjust how much space this tile occupies.
-      value: 0.5,
-      body: 'A running collection of backend architecture notes, reliability patterns, and practical experiments from course and internship work.',
-      tags: ['Architecture', 'Notes', 'Backend'],
-      link: 'https://github.com/KamenKarchev',
-      image: '/images/project-systems-notebook.jpg',
-    },
-  ],
-}
+  {
+    id: 'side-project',
+    title: 'PipePrompt',
+    w: 45,
+    h: 55,
+    body: 'An Android app built with Kotlin and Jetpack Compose, focused on fast prompt workflows and clean mobile interaction.',
+    tags: ['Kotlin', 'Compose', 'Android'],
+    link: 'https://github.com/KamenKarchev',
+    image: '/images/project-pipeprompt.jpg',
+  },
+  {
+    id: 'small-project',
+    title: 'Media and storytelling',
+    w: 30,
+    h: 35,
+    body: 'Creative and media work that proves I can shape narratives, not just implement features.',
+    tags: ['Photoshop', 'Video', 'Script'],
+    link: '#',
+    image: '/images/project-media-storytelling.jpg',
+  },
+  {
+    id: 'misc-project',
+    title: 'Systems notebook',
+    w: 70,
+    h: 35,
+    body: 'A running collection of backend architecture notes, reliability patterns, and practical experiments from course and internship work.',
+    tags: ['Architecture', 'Notes', 'Backend'],
+    link: 'https://github.com/KamenKarchev',
+    image: '/images/project-systems-notebook.jpg',
+  },
+]
 
 export const CONTACT = [
   {
