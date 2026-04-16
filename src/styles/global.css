@@ -256,7 +256,6 @@ img { display: block; max-width: 100%; }
 }
 .feature-article-pad {
   flex: 1;
-  /* height: 100%; */
   width: 100%;
   min-width: 0;
   display: flex;
@@ -287,7 +286,6 @@ img { display: block; max-width: 100%; }
   position: relative;
   z-index: 1;
 }
-/* Uniform card — fixed height so all cards are the same size */
 .checkpoint-card {
   border-radius: 18px;
   border: 1px solid var(--line);
@@ -343,7 +341,6 @@ img { display: block; max-width: 100%; }
   align-items: stretch;
   row-gap: .75rem;
   min-width: var(--timeline-col-min);
-  /* max-width: var(--timeline-col-max); */
   aspect-ratio: var(--timeline-col-ratio);
   flex-shrink: 0;
   height: 100%;
@@ -368,13 +365,14 @@ img { display: block; max-width: 100%; }
   min-height: 0;
 }
 
-/* PROJECTS */
+/* ── PROJECTS TREEMAP ── */
 .projects-layout {
   position: relative;
   z-index: 1;
   width: 100%;
-  min-height: clamp(560px, 78vh, 980px);
-  height: calc(100% - .2rem);
+  /* Height is set via inline style from JS (measured width × 1.18, clamped 560–980px).
+     min-height guards the very first paint before JS runs. */
+  min-height: 560px;
   padding: 0;
 }
 .projects-item {
@@ -382,14 +380,49 @@ img { display: block; max-width: 100%; }
   margin: 0;
   overflow: hidden;
   will-change: transform;
+  /* Flex column so image / title / body / tags stack naturally inside the tile */
+  display: flex;
+  flex-direction: column;
 }
-.lead-project { padding: 1.15rem; border-radius: 22px; border: 1px solid var(--line); background: linear-gradient(180deg, color-mix(in srgb, var(--paper-2) 84%, white 2%), var(--paper-2)); box-shadow: var(--shadow); }
-.project-visual { aspect-ratio: 16/10; border-radius: 18px; border: 1px solid var(--line); background: var(--image-surface); margin-bottom: 1rem; position: relative; overflow: hidden; }
+.lead-project {
+  padding: 1.15rem;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--paper-2) 84%, white 2%),
+    var(--paper-2)
+  );
+  box-shadow: var(--shadow);
+}
+.mini-project {
+  padding: 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+}
+.project-visual {
+  aspect-ratio: 16 / 10;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: var(--image-surface);
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
 .project-visual img { width: 100%; height: 100%; object-fit: cover; }
 .project-title { font-family: 'Instrument Serif', Georgia, serif; font-size: clamp(1.8rem, 3vw, 2.6rem); line-height: .95; letter-spacing: -.03em; margin: 0 0 .55rem; }
 .project-body { font-size: .95rem; line-height: 1.7; color: var(--muted); margin: 0 0 .9rem; }
-.mini-project { padding: 1rem; border-radius: 20px; border: 1px solid var(--line); background: var(--paper-2); }
-.mini-visual { height: 150px; border-radius: 16px; border: 1px solid var(--line); background: var(--image-surface); margin-bottom: .9rem; overflow: hidden; }
+.mini-visual {
+  height: 120px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--image-surface);
+  margin-bottom: .8rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
 .mini-visual img { width: 100%; height: 100%; object-fit: cover; }
 .tags { display: flex; flex-wrap: wrap; gap: .45rem; }
 .tag { padding: .34rem .62rem; border-radius: 999px; background: var(--accent); color: var(--primary-soft); font-size: .77rem; font-weight: 700; }
@@ -487,8 +520,6 @@ img { display: block; max-width: 100%; }
   text-overflow: ellipsis;
 }
 
-
-
 /* FOOTER */
 .footer { padding: 1.15rem 0 2.5rem; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; color: var(--muted); font-size: .82rem; }
 
@@ -498,9 +529,7 @@ img { display: block; max-width: 100%; }
   .masthead-top { grid-template-columns: 1fr; text-align: center; }
   .masthead-meta { display: none; }
   .quick-grid { grid-template-columns: 1fr; }
-  /* Tall articles: 1× screen height on mobile */
   .newspaper-page--tall .glass { min-height: calc(100vh - 80px); }
-  /* Profile cards: slightly smaller padding on mobile */
   .profile-card { padding: .9rem 1rem; min-height: 140px; gap: 1rem; }
   .profile-card-icon { width: 86px; height: 86px; }
   .profile-card-icon svg { width: 44px; height: 44px; }

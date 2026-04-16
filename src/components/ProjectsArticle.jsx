@@ -9,10 +9,20 @@ const Tags = ({ items }) => (
   </div>
 )
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value))
+}
+
 export default function ProjectsArticle() {
   const containerRef = useRef(null)
   const [layout, setLayout] = useState({})
-  const layoutItems = useMemo(() => [PROJECTS.lead, ...PROJECTS.mini], [])
+  const [layoutHeight, setLayoutHeight] = useState(680)
+
+  // Flat ordered list — squarify handles all sizing by value
+  const projects = useMemo(
+    () => [PROJECTS.lead, ...PROJECTS.mini],
+    [],
+  )
 
   useEffect(() => {
     const container = containerRef.current
@@ -20,24 +30,31 @@ export default function ProjectsArticle() {
 
     const updateLayout = () => {
       const width = container.clientWidth
-      const height = container.clientHeight
-      if (!width || !height) return
+      if (!width) return
+
+      // Derive a stable explicit height from width so squarify always
+      // receives a real non-zero rectangle, regardless of parent height.
+      const height = clamp(Math.round(width * 1.18), 560, 980)
+      setLayoutHeight(height)
 
       const rects = squarify(
-        layoutItems.map(item => ({ id: item.id, value: item.value })),
+        projects.map(item => ({
+          id: item.id,
+          value: Number.isFinite(item.value) && item.value > 0 ? item.value : undefined,
+        })),
         width,
         height,
-        8,
+        10,
       )
-      const byId = Object.fromEntries(rects.map(rect => [rect.id, rect]))
-      setLayout(byId)
+
+      setLayout(Object.fromEntries(rects.map(r => [r.id, r])))
     }
 
     updateLayout()
     const observer = new ResizeObserver(updateLayout)
     observer.observe(container)
     return () => observer.disconnect()
-  }, [layoutItems])
+  }, [projects])
 
   const getRectStyle = (id) => {
     const rect = layout[id]
@@ -63,50 +80,62 @@ export default function ProjectsArticle() {
       <div className="article-pad">
         <div className="article-head">
           <span className="smallcaps">Work article</span>
-          <h3 className="article-title">The strongest work should take the most space.</h3>
+          <h3 className="article-title">Projects sized by importance.</h3>
           <p className="article-deck">
-            Presented like a newspaper spread — the most important technical story leads,
-            supporting work adds range and credibility.
+            Packed like a portfolio heatmap — larger work gets more space,
+            smaller work still keeps its place in the grid.
           </p>
         </div>
 
-        <div className="projects-layout" ref={containerRef}>
-          <motion.article
-            className="lead-project projects-item"
-            style={getRectStyle(PROJECTS.lead.id)}
-            whileHover={{ y: -4, boxShadow: 'var(--shadow-lg)' }}
-            transition={{ duration: .2 }}
-          >
-            <div className="project-visual">
-              {PROJECTS.lead.image && <img src={PROJECTS.lead.image} alt={PROJECTS.lead.title} />}
-              {!PROJECTS.lead.image && (
-                <div className="caption">
-                  <strong>Lead backend story</strong>
-                  <span>Replace with an architecture diagram, auth flow, or backend screenshot.</span>
-                </div>
-              )}
-            </div>
-            <h4 className="project-title">{PROJECTS.lead.title}</h4>
-            <p className="project-body">{PROJECTS.lead.body}</p>
-            <Tags items={PROJECTS.lead.tags} />
-          </motion.article>
+        {/* Explicit pixel height derived from measured width */}
+        <div
+          className="projects-layout"
+          ref={containerRef}
+          style={{ height: `${layoutHeight}px` }}
+        >
+          {projects.map(project => {
+            const rect = layout[project.id]
+            const area = rect ? rect.width * rect.height : 0
+            const minSide = rect ? Math.min(rect.width, rect.height) : 0
 
-          {PROJECTS.mini.map(p => (
-            <motion.article
-              className="mini-project projects-item"
-              style={getRectStyle(p.id)}
-              key={p.id}
-              whileHover={{ y: -3, boxShadow: 'var(--shadow)' }}
-              transition={{ duration: .2 }}
-            >
-              <div className="mini-visual">
-                {p.image && <img src={p.image} alt={p.title} />}
-              </div>
-              <h4 className="project-title" style={{ fontSize: 'clamp(1.4rem, 2.5vw, 2rem)' }}>{p.title}</h4>
-              <p className="project-body">{p.body}</p>
-              <Tags items={p.tags} />
-            </motion.article>
-          ))}
+            const isLarge  = area > 110_000 || minSide > 260
+            const showImage = minSide > 180
+            const showBody  = minSide > 170 && area > 45_000
+            const showTags  = minSide > 150 && area > 38_000
+
+            const titleSize =
+              minSide > 280 ? 'clamp(2rem, 3vw, 2.8rem)'
+              : minSide > 180 ? 'clamp(1.4rem, 2.3vw, 2rem)'
+              : 'clamp(1rem, 1.6vw, 1.25rem)'
+
+            return (
+              <motion.article
+                key={project.id}
+                className={`projects-item ${isLarge ? 'lead-project' : 'mini-project'}`}
+                style={getRectStyle(project.id)}
+                whileHover={{ y: -3, boxShadow: 'var(--shadow-lg)' }}
+                transition={{ duration: .2 }}
+              >
+                {showImage && (
+                  <div className={isLarge ? 'project-visual' : 'mini-visual'}>
+                    {project.image && (
+                      <img src={project.image} alt={project.title} />
+                    )}
+                  </div>
+                )}
+
+                <h4 className="project-title" style={{ fontSize: titleSize }}>
+                  {project.title}
+                </h4>
+
+                {showBody && (
+                  <p className="project-body">{project.body}</p>
+                )}
+
+                {showTags && <Tags items={project.tags} />}
+              </motion.article>
+            )
+          })}
         </div>
       </div>
     </motion.section>
