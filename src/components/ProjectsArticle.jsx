@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { PROJECTS } from '../data/content'
 import { squarify } from '../utils/squarify'
@@ -16,24 +16,22 @@ function clamp(value, min, max) {
 export default function ProjectsArticle() {
   const containerRef = useRef(null)
   const [layout, setLayout] = useState({})
-  const [layoutHeight, setLayoutHeight] = useState(680)
+  const [layoutHeight, setLayoutHeight] = useState(0)
 
-  // Flat ordered list — squarify handles all sizing by value
   const projects = useMemo(
     () => [PROJECTS.lead, ...PROJECTS.mini],
     [],
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const container = containerRef.current
     if (!container) return undefined
 
     const updateLayout = () => {
       const width = container.clientWidth
-      if (!width) return
+      // Guard: don't compute squarify until the container has a real width
+      if (width <= 0) return
 
-      // Derive a stable explicit height from width so squarify always
-      // receives a real non-zero rectangle, regardless of parent height.
       const height = clamp(Math.round(width * 1.18), 560, 980)
       setLayoutHeight(height)
 
@@ -87,11 +85,10 @@ export default function ProjectsArticle() {
           </p>
         </div>
 
-        {/* Explicit pixel height derived from measured width */}
         <div
           className="projects-layout"
           ref={containerRef}
-          style={{ height: `${layoutHeight}px` }}
+          style={layoutHeight > 0 ? { height: `${layoutHeight}px` } : undefined}
         >
           {projects.map(project => {
             const rect = layout[project.id]
