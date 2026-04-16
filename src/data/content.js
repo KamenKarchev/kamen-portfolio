@@ -60,32 +60,52 @@ export const TIMELINE = [
  * To add a project: add an entry with your desired w/h percentages.
  */
 export const PROJECTS = [
-  // ── Row 1 ──────────────────────────────────────────────────────────────────
+  // ── Row 1 — big flagship projects ──────────────────────────────────────
+  {
+    id: 'winery',
+    title: 'Winery',
+    w: 40,
+    h: 55,
+    body: 'University team project — a full winery management system with role-based access for CEO, managers, warehouse staff and accountants. Covers order processing, inventory, worker scoring, automated task generation, and real-time notifications.',
+    tags: ['Java', 'OOP', 'Team project', 'SQL', 'Role-based access'],
+    link: 'https://github.com/KostadinTodorov/winery',
+    image: '/images/project-winery.jpg',
+  },
+  {
+    id: 'shop-assist',
+    title: 'ShopAssist',
+    w: 35,
+    h: 55,
+    body: 'An ASP.NET service that webcrawls e-commerce sites, filters items by user-defined criteria, and surfaces the best matches. AI integration planned to rank and explain results in natural language.',
+    tags: ['C#', 'ASP.NET', 'Web scraping', 'AI', 'In progress'],
+    link: '#',
+    image: '/images/project-shop-assist.jpg',
+  },
   {
     id: 'dopey-user-api',
     title: 'DopeyUserAPI',
-    w: 55,
-    h: 50,
-    body: 'A Phoenix/Elixir backend covering authentication, user flows, JWT tokens, email logic, and OAuth. Production-minded from the start.',
+    w: 25,
+    h: 55,
+    body: 'A Phoenix/Elixir backend covering authentication, user flows, JWT tokens, email logic, and OAuth.',
     tags: ['Elixir', 'Phoenix', 'PostgreSQL', 'Docker', 'OAuth'],
     link: 'https://github.com/KamenKarchev',
     image: '/images/project-dopeyuserapi.jpg',
   },
+  // ── Row 2 ──────────────────────────────────────────────────────────────────
   {
     id: 'pipe-prompt',
     title: 'PipePrompt',
     w: 45,
-    h: 50,
-    body: 'Android app built with Kotlin and Jetpack Compose for fast AI prompt workflows. Backed by a small Flask dispatcher API.',
+    h: 40,
+    body: 'Android app built with Kotlin and Jetpack Compose for fast AI prompt workflows. Backed by a Flask dispatcher API.',
     tags: ['Kotlin', 'Jetpack Compose', 'Android', 'Python', 'Flask'],
     link: 'https://github.com/KamenKarchev/PipePrompt-BackEnd',
     image: '/images/project-pipeprompt.jpg',
   },
-  // ── Row 2 ──────────────────────────────────────────────────────────────────
   {
     id: 'punch-pro',
     title: 'PunchPro',
-    w: 35,
+    w: 30,
     h: 40,
     body: 'A JavaScript web project — a punchy front-end experiment exploring UI composition and interactive design.',
     tags: ['JavaScript', 'HTML', 'CSS'],
@@ -95,28 +115,28 @@ export const PROJECTS = [
   {
     id: 'fsm-java',
     title: 'Finite-State Machine',
-    w: 35,
+    w: 25,
     h: 40,
-    body: 'OOP course project — a command-line finite-state machine implemented in Java. Covers state transitions, input parsing, and acceptance logic.',
+    body: 'OOP course project — a command-line finite-state machine in Java covering state transitions, input parsing, and acceptance logic.',
     tags: ['Java', 'OOP', 'Automata'],
     link: 'https://github.com/KamenKarchev/oop1-project-T4--Finite-state_machine-',
     image: '/images/project-fsm.jpg',
   },
+  // ── Row 3 ──────────────────────────────────────────────────────────────────
   {
     id: 'front-end-ui',
     title: 'Front-end UI Lab',
-    w: 30,
-    h: 40,
+    w: 25,
+    h: 30,
     body: 'A TypeScript front-end lab pushing UI components, layout experiments, and interactive patterns.',
     tags: ['TypeScript', 'UI', 'Frontend'],
     link: 'https://github.com/KamenKarchev/front-end-more-ui-',
     image: '/images/project-frontend-ui.jpg',
   },
-  // ── Row 3 ──────────────────────────────────────────────────────────────────
   {
     id: 'students-compiler',
     title: 'Students Compiler',
-    w: 34,
+    w: 25,
     h: 30,
     body: 'A Java compiler-style project processing student records — parsing, validation, and structured output.',
     tags: ['Java', 'Compiler', 'Parsing'],
@@ -126,7 +146,7 @@ export const PROJECTS = [
   {
     id: 'backend-tests',
     title: 'Back-end Test Suite',
-    w: 33,
+    w: 25,
     h: 30,
     body: 'A Java back-end testing project — unit and integration tests covering service layers and API contracts.',
     tags: ['Java', 'Testing', 'Backend'],
@@ -136,7 +156,7 @@ export const PROJECTS = [
   {
     id: 'hospital-app',
     title: 'HospitalApp',
-    w: 33,
+    w: 25,
     h: 30,
     body: 'An early C# assignment modelling a hospital management system — one of the first structured OOP projects.',
     tags: ['C#', 'OOP', '.NET'],
