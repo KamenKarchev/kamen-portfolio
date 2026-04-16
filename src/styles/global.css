@@ -383,6 +383,11 @@ img { display: block; max-width: 100%; }
   /* Flex column so image / title / body / tags stack naturally inside the tile */
   display: flex;
   flex-direction: column;
+
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  box-shadow: var(--shadow);
 }
 .lead-project {
   padding: 1.15rem;
