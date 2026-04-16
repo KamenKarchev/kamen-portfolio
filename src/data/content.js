@@ -65,8 +65,8 @@ export const PROJECTS = [
   {
     id: 'hero-project',
     title: 'DopeyUserAPI',
-    w: 55,   // % of container width
-    h: 55,   // % of container width
+    w: 50,   // % of container width
+    h: 50,   // % of container width
     body: 'A Phoenix backend for authentication, user flows, tokens, and email logic, built to reflect production-minded backend thinking.',
     tags: ['Elixir', 'Phoenix', 'PostgreSQL', 'Docker', 'OAuth'],
     link: 'https://github.com/KamenKarchev',
@@ -75,8 +75,8 @@ export const PROJECTS = [
   {
     id: 'side-project',
     title: 'PipePrompt',
-    w: 45,
-    h: 55,
+    w: 25,
+    h: 25,
     body: 'An Android app built with Kotlin and Jetpack Compose, focused on fast prompt workflows and clean mobile interaction.',
     tags: ['Kotlin', 'Compose', 'Android'],
     link: 'https://github.com/KamenKarchev',
@@ -85,8 +85,8 @@ export const PROJECTS = [
   {
     id: 'small-project',
     title: 'Media and storytelling',
-    w: 30,
-    h: 35,
+    w: 25,
+    h: 25,
     body: 'Creative and media work that proves I can shape narratives, not just implement features.',
     tags: ['Photoshop', 'Video', 'Script'],
     link: '#',
@@ -95,8 +95,8 @@ export const PROJECTS = [
   {
     id: 'misc-project',
     title: 'Systems notebook',
-    w: 70,
-    h: 35,
+    w: 25,
+    h: 25,
     body: 'A running collection of backend architecture notes, reliability patterns, and practical experiments from course and internship work.',
     tags: ['Architecture', 'Notes', 'Backend'],
     link: 'https://github.com/KamenKarchev',

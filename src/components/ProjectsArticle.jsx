@@ -62,14 +62,13 @@ export default function ProjectsArticle() {
                   top:  b.y,
                   width:  b.w,
                   height: b.h,
-                  padding: '6px',
                   boxSizing: 'border-box',
                 }}
               >
                 {/* Inner article — fills the padded space, holds all content */}
                 <motion.article
                   className="projects-item"
-                  style={{ width: '100%', height: '100%' }}
+                  style={{ width: '97.5%', height: '97.5%' }}
                   whileHover={{ y: -3, boxShadow: 'var(--shadow-lg)' }}
                   transition={{ duration: .2 }}
                 >
