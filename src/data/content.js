@@ -54,53 +54,94 @@ export const TIMELINE = [
  * PROJECTS — flat array, order matters for packing.
  *
  * w  — tile width  as % of the container width
- * h  — tile height as % of the container width  (relative to width so it
- *      scales consistently; 50w × 50h = a square half the container wide)
+ * h  — tile height as % of the container width
  *
- * Tiles are packed shelf by shelf left-to-right in the order listed.
- * When a tile doesn't fit on the current shelf it wraps to the next.
- * To add a project: add an entry here with your desired w/h percentages.
+ * Tiles pack shelf by shelf left-to-right.
+ * To add a project: add an entry with your desired w/h percentages.
  */
 export const PROJECTS = [
+  // ── Row 1 ──────────────────────────────────────────────────────────────────
   {
-    id: 'hero-project',
+    id: 'dopey-user-api',
     title: 'DopeyUserAPI',
-    w: 50,   // % of container width
-    h: 50,   // % of container width
-    body: 'A Phoenix backend for authentication, user flows, tokens, and email logic, built to reflect production-minded backend thinking.',
+    w: 55,
+    h: 50,
+    body: 'A Phoenix/Elixir backend covering authentication, user flows, JWT tokens, email logic, and OAuth. Production-minded from the start.',
     tags: ['Elixir', 'Phoenix', 'PostgreSQL', 'Docker', 'OAuth'],
     link: 'https://github.com/KamenKarchev',
     image: '/images/project-dopeyuserapi.jpg',
   },
   {
-    id: 'side-project',
+    id: 'pipe-prompt',
     title: 'PipePrompt',
-    w: 25,
-    h: 25,
-    body: 'An Android app built with Kotlin and Jetpack Compose, focused on fast prompt workflows and clean mobile interaction.',
-    tags: ['Kotlin', 'Compose', 'Android'],
-    link: 'https://github.com/KamenKarchev',
+    w: 45,
+    h: 50,
+    body: 'Android app built with Kotlin and Jetpack Compose for fast AI prompt workflows. Backed by a small Flask dispatcher API.',
+    tags: ['Kotlin', 'Jetpack Compose', 'Android', 'Python', 'Flask'],
+    link: 'https://github.com/KamenKarchev/PipePrompt-BackEnd',
     image: '/images/project-pipeprompt.jpg',
   },
+  // ── Row 2 ──────────────────────────────────────────────────────────────────
   {
-    id: 'small-project',
-    title: 'Media and storytelling',
-    w: 25,
-    h: 25,
-    body: 'Creative and media work that proves I can shape narratives, not just implement features.',
-    tags: ['Photoshop', 'Video', 'Script'],
-    link: '#',
-    image: '/images/project-media-storytelling.jpg',
+    id: 'punch-pro',
+    title: 'PunchPro',
+    w: 35,
+    h: 40,
+    body: 'A JavaScript web project — a punchy front-end experiment exploring UI composition and interactive design.',
+    tags: ['JavaScript', 'HTML', 'CSS'],
+    link: 'https://github.com/KamenKarchev/PunchPro',
+    image: '/images/project-punchpro.jpg',
   },
   {
-    id: 'misc-project',
-    title: 'Systems notebook',
-    w: 25,
-    h: 25,
-    body: 'A running collection of backend architecture notes, reliability patterns, and practical experiments from course and internship work.',
-    tags: ['Architecture', 'Notes', 'Backend'],
-    link: 'https://github.com/KamenKarchev',
-    image: '/images/project-systems-notebook.jpg',
+    id: 'fsm-java',
+    title: 'Finite-State Machine',
+    w: 35,
+    h: 40,
+    body: 'OOP course project — a command-line finite-state machine implemented in Java. Covers state transitions, input parsing, and acceptance logic.',
+    tags: ['Java', 'OOP', 'Automata'],
+    link: 'https://github.com/KamenKarchev/oop1-project-T4--Finite-state_machine-',
+    image: '/images/project-fsm.jpg',
+  },
+  {
+    id: 'front-end-ui',
+    title: 'Front-end UI Lab',
+    w: 30,
+    h: 40,
+    body: 'A TypeScript front-end lab pushing UI components, layout experiments, and interactive patterns.',
+    tags: ['TypeScript', 'UI', 'Frontend'],
+    link: 'https://github.com/KamenKarchev/front-end-more-ui-',
+    image: '/images/project-frontend-ui.jpg',
+  },
+  // ── Row 3 ──────────────────────────────────────────────────────────────────
+  {
+    id: 'students-compiler',
+    title: 'Students Compiler',
+    w: 34,
+    h: 30,
+    body: 'A Java compiler-style project processing student records — parsing, validation, and structured output.',
+    tags: ['Java', 'Compiler', 'Parsing'],
+    link: 'https://github.com/KamenKarchev/students_compiler',
+    image: '/images/project-students-compiler.jpg',
+  },
+  {
+    id: 'backend-tests',
+    title: 'Back-end Test Suite',
+    w: 33,
+    h: 30,
+    body: 'A Java back-end testing project — unit and integration tests covering service layers and API contracts.',
+    tags: ['Java', 'Testing', 'Backend'],
+    link: 'https://github.com/KamenKarchev/back-end-tests-',
+    image: '/images/project-backend-tests.jpg',
+  },
+  {
+    id: 'hospital-app',
+    title: 'HospitalApp',
+    w: 33,
+    h: 30,
+    body: 'An early C# assignment modelling a hospital management system — one of the first structured OOP projects.',
+    tags: ['C#', 'OOP', '.NET'],
+    link: 'https://github.com/KamenKarchev/HospitalApp',
+    image: '/images/project-hospital-app.jpg',
   },
 ]
 
