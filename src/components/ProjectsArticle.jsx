@@ -3,57 +3,84 @@ import { motion } from 'motion/react'
 import { PROJECTS } from '../data/content'
 
 /**
- * Hardcoded tile layout — each project has an explicit col/row span.
- * The grid is 12 columns. Sizes are defined here, not computed.
- *
- * Adjust `cols` and `rows` per project to change how much space it gets.
+ * Dev assigns each project a percentage of the total container area.
+ * Must sum to 100. The packer fills them shelf by shelf.
  */
-const TILE_SIZES = {
-  'hero-project':  { cols: 7, rows: 2 },  // lead — big
-  'side-project':  { cols: 5, rows: 2 },  // medium
-  'small-project': { cols: 4, rows: 1 },  // small
-  'misc-project':  { cols: 4, rows: 1 },  // small
+const SIZES = {
+  'hero-project':  45,
+  'side-project':  30,
+  'small-project': 15,
+  'misc-project':  10,
 }
 
-const TOTAL_COLS = 12
 const GAP = 10
 
-/** Convert col/row spans into absolute pixel rects. */
-function buildLayout(containerWidth) {
-  const colW = (containerWidth - GAP * (TOTAL_COLS - 1)) / TOTAL_COLS
+function pack(projects, containerW) {
+  // Total container height is derived so area = containerW * containerH
+  // We don't know containerH yet — we let it grow from the shelves.
+  // Each tile's area = (pct/100) * containerW * containerH
+  // Since containerH is unknown, we work in 1D: each tile gets a
+  // width proportional to its share of the current shelf, and we
+  // assign heights so area is correct once containerH is resolved.
+  //
+  // Simpler: fix containerH = containerW (square canvas), derive tile
+  // dimensions from that, then pack shelves greedily.
 
-  // Row height = colW so tiles are always square cells
-  const rowH = colW
-
+  const totalArea = containerW * containerW  // square canvas
   const rects = {}
-  let cursorCol = 0
-  let cursorRow = 0
 
-  for (const [id, size] of Object.entries(TILE_SIZES)) {
-    const { cols, rows } = size
+  // Build tiles with target area and a natural aspect ratio
+  const tiles = projects.map(p => {
+    const pct  = SIZES[p.id] ?? 10
+    const area = (pct / 100) * totalArea
+    // aspect ratio: keep tiles roughly square
+    const w = Math.sqrt(area)
+    const h = area / w
+    return { id: p.id, w, h, area }
+  })
 
-    // Wrap to next row if this tile doesn't fit
-    if (cursorCol + cols > TOTAL_COLS) {
-      cursorRow += 1  // simple single-row advance; adjust if you add more items
-      cursorCol  = 0
+  // Sort widest-first for better shelf packing
+  tiles.sort((a, b) => b.w - a.w)
+
+  let shelfX = 0, shelfY = 0, shelfH = 0
+
+  for (const tile of tiles) {
+    // Scale tile to fit remaining shelf width
+    let w = tile.w
+    let h = tile.h
+
+    if (shelfX + w > containerW) {
+      // Start new shelf
+      shelfY += shelfH + GAP
+      shelfX  = 0
+      shelfH  = 0
     }
 
-    const x = cursorCol * (colW + GAP)
-    const y = cursorRow * (rowH + GAP)
-    const w = cols * colW + (cols - 1) * GAP
-    const h = rows * rowH + (rows - 1) * GAP
+    // If tile is wider than full container, clamp and fix height to preserve area
+    if (w > containerW) {
+      w = containerW
+      h = tile.area / w
+    }
 
-    rects[id] = { x, y, w, h }
-    cursorCol += cols
+    rects[tile.id] = {
+      x: shelfX + GAP / 2,
+      y: shelfY + GAP / 2,
+      w: w - GAP,
+      h: h - GAP,
+    }
+
+    shelfX += w
+    if (h > shelfH) shelfH = h
   }
 
-  const maxBottom = Math.max(...Object.values(rects).map(r => r.y + r.h))
-  return { rects, height: maxBottom }
+  const height = shelfY + shelfH
+  return { rects, height }
 }
 
 export default function ProjectsArticle() {
   const containerRef = useRef(null)
   const [layout, setLayout] = useState({ rects: {}, height: 0 })
+  const projects = [PROJECTS.lead, ...PROJECTS.mini]
 
   useLayoutEffect(() => {
     const el = containerRef.current
@@ -61,15 +88,13 @@ export default function ProjectsArticle() {
     const run = () => {
       const w = el.clientWidth
       if (w <= 0) return
-      setLayout(buildLayout(w))
+      setLayout(pack(projects, w))
     }
     run()
     const ro = new ResizeObserver(run)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [])
-
-  const projects = [PROJECTS.lead, ...PROJECTS.mini]
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <motion.section
