@@ -1,8 +1,8 @@
-import { motion } from 'motion/react'
+import { motion as Motion } from 'motion/react'
 
 export default function SectionHead({ eyebrow, title, id }) {
   return (
-    <motion.div
+    <Motion.div
       className="section-head"
       id={id}
       initial={{ opacity: 0, y: 20 }}
@@ -14,6 +14,6 @@ export default function SectionHead({ eyebrow, title, id }) {
       <div className="rule" />
       <h3>{title}</h3>
       <div className="rule" />
-    </motion.div>
+    </Motion.div>
   )
 }

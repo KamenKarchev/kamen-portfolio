@@ -1,0 +1,153 @@
+composer2 forms initial spec doc
+look at 02-spec.precompress.bak.md
+*not here that i think composer didnt do a very good job with the specifics the document is pretty short
+
+haiku uses 98k ~0.1$ tokens to write the spec file
+to comress file since composer/surser didnt have /caveman
+look at 02-spec.compressed.md
+
+then we move on to opus however sadly it got confused from my prompt 
+[execute: @cut-load-prompts/02-spec.precompress.bak.md according to @cut-load.mdc Stage 2 — Claw Plans. This is a manual execution via user writen flow thats why we are not exactly folowing the @cut-load.mdc protocol]
+*so it sort of started executing the manual prompt than at the end realised what it had to do but i suspect that impacted quality
+some of the output:
+• To add a project: add an entry with your desired w/h percentages.    
+*/
+export const PROJECTS = [
+// ── Row 1 — big flagship projects ──────────────────────────────────────
+{
+id: ‘winery’,
+title: ‘Winery’,
+w: 40,
+h: 55,
+body: ‘University team project — a full winery management system with role-based access for CEO, managers, warehouse staff and accountants. Covers order processing, inventory, worker scoring, automated task generation, and real-time notifications.’,
+tags: [‘Java’, ‘OOP’, ‘Team project’, ‘SQL’, ‘Role-based access’],
+link: ‘https://github.com/KostadinTodorov/winery’,
+image: ‘/images/project-winery.jpg’,
+},
+{
+id: ‘shop-assist’,
+title: ‘ShopAssist’,
+w: 35,
+h: 55,
+body: ‘An ASP.NET service that webcrawls e-commerce sites, filters items by user-defined criteria, and surfaces the best matches. AI integration planned to rank and explain results in natural language.’,
+tags: [‘C#’, ‘ASP.NET’, ‘Web scraping’, ‘AI’, ‘In progress’],
+… output truncated for display; full result preserved in session.
+Good. I now have full project context. Let me construct the Claw input and attempt to run Stage 2 via terminal. Per the protocol, I need to pipe the spec with the preamble through Claw. Let me try it:
+╭─ PowerShell ─╮
+│ {"command":"\n$spec = Get-Content \"cut-load-prompts/02-spec.precompress.bak.md\" -Raw\n$preambl…
+╰──────────────────╯
+✗ PowerShell
+PowerShell executable not found (expected `pwsh` or `powershell` in PATH)
+
+╭─ bash ─╮
+│  $ which powershell 2>/dev/null || which pwsh 2>/dev/null || echo "no powershell" 
+╰────────────╯
+✗ bash
+program not found
+
+╭─ bash ─╮
+│  $ where powershell.exe 2>nul || where pwsh.exe 2>nul || echo "no powershell found" 
+╰────────────╯
+✗ bash
+program not found
+
+╭─ bash ─╮
+│  $ cmd /c "where powershell.exe 2>nul & where pwsh.exe 2>nul & echo done" 
+╰────────────╯
+✗ bash
+program not found
+Shell access is limited. Since I can’t invoke Claw via terminal, I’ll follow the cut-load fallback protocol: write the full Claw input to a file, and also — since you said this is a manual execution — I’ll act as the architect myself and produce the `03-opus-plan.md` directly, resolving the open questions and creating the plan.Let me first write the Claw input file for reference, then produce the plan:
+╭─ write_file ─╮
+│ ✏️ Writing cut-load-prompts/02-claw-input.md (104 lines)
+╰──────────────────╯
+✓ ✏️ Wrote \?\D:\Project\ReactPortfolio\kamen-portfolio\cut-load-prompts\02-claw-input.md (104 lines)
+Now I’ll produce the implementation plan, resolving all open questions as the architect role:
+╭─ write_file ─╮
+│ ✏️ Writing cut-load-prompts/03-opus-plan.md (110 lines)
+╰──────────────────╯
+✓ ✏️ Wrote \?\D:\Project\ReactPortfolio\kamen-portfolio\cut-load-prompts\03-opus-plan.md (110 lines)
+✅ Stage 2 complete. Written: `cut-load-prompts/03-opus-plan.md`
+
+Here’s a summary of what was produced:
+
+---Resolved Open Questions (7/7)
+
+│ #  │ Resolution                                                                                             │
+│────┼────────────────────────────────────────────────────────────────────────────────────────────────────────│
+│ Q1 │ height ≤ width → horizontal; height > width → vertical                                                 │
+│ Q2 │ Ratio = height ÷ width of `.timeline-section`; keyframes at 0.5, 1.0, 2.0                              │
+│ Q3 │ `--tl-secondary` drives aspect-ratio’s non-base component on `.timeline-col`                           │
+│ Q4 │ Hybrid: JS `ResizeObserver` for continuous `--tl-secondary`; CSS `[data-tl-mode]` selectors for layout │
+│ Q5 │ Vertical spine runs along left edge; drag maps to `scrollTop`                                          │
+│ Q6 │ `role="region"`, `tabindex="0"`, arrow keys; spine is `aria-hidden`                                    │
+│ Q7 │ `passive: false` wheel on `.timeline-scroll-wrap` only; boundary check lets events propagate           │10 Steps
+
+1. Create `useTimelineLayout` hook — ResizeObserver → mode + `--tl-secondary`
+2. Remove orientation/pixel media queries — delete brittle overrides ⚠️
+3. Add `[data-tl-mode]` CSS rules — H and V layout modes
+4. Update `.newspaper-page--tall` min-height — `max(100vh - 80px, 600px)` ⚠️
+5. Wire hook into FeatureArticle — ref on `.timeline-section`
+6. Restructure spine DOM — single track outside columns ⚠️
+7. Wheel hijack — trap scroll inside timeline, release at boundaries
+8. Draggable spine — pointer events → proportional scroll
+9. Keyboard accessibility — arrows, Home/End, focus ring, ARIA
+10. Cleanup — remove dead CSS, debug logs, visual polish3 steps flagged ⚠️ HIGH RISK (Steps 2, 4, 6).
+
+✔ ✨ Done
+
+[auto-compacted: removed 24 messages]
+>
+costed at ~2.36 $
+
+look at 02-claw-input.md for the output file
+
+then i finaly ran sonnet with this instruction: !THIS IS A MANUAL TEST - IGNORE THE STEPS ABOUT AUTOMATION & BETWEEN MODEL PIPING. execute @cut-load-prompts/02-claw-input.md you got from opus in serving as the model Executing ## Stage 3 — Composer Implements Step by Step in the @cut-load.mdc protocol.
+
+some of the output: 
+✗ edit_file
+old_string not found in file
+
+╭─ bash ─╮
+│  $ python3 -c "
+content = open('D:/Project/ReactPortfolio/kamen-portfolio/src/styles/global.css', 'rb').read()                                                               
+target = b'@media (orientation: landscape)'                                                                                                                  
+idx = co…                                                                                                                                                    
+╰────────────╯
+✗ bash
+program not found
+
+╭─ PowerShell ─╮
+│ {"command":"\n$content = Get-Content \"D:\\Project\\ReactPortfolio\\kamen-portfolio\\src\\styles…
+╰──────────────────╯
+✗ PowerShell
+PowerShell executable not found (expected `pwsh` or `powershell` in PATH)
+
+╭─ bash ─╮
+│  $ cd /d/Project/ReactPortfolio/kamen-portfolio && grep -n "orientation" src/styles/global.css | cat 
+╰────────────╯
+✗ bash
+program not found
+
+╭─ bash ─╮
+│
+╰────────────╯
+
+│  $ node -e "const fs=require('fs');const c=fs.readFileSync('D:/Project/ReactPortfolio/kamen-portfolio/src/styles/global.css','utf8');const i=c.indexOf('@media (ori…
+╰────────────╯
+✗ bash
+program not found
+
+╭─ REPL ─╮
+│ {"code":"\nwith open(r'D:\\Project\\ReactPortfolio\\kamen-portfolio\\src\\styles\\global.css', '…
+╰────────────╯
+✗ REPL
+python runtime not found
+✘ ❌ Request failed
+error: api returned 400 Bad Request (invalid_request_error) [trace req_011CaSfGUTD3QrahXTc7BfMg]: Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.
+
+Run `claw --help` for usage.
+
+long story short it failed to make any chages and i ran out of credits
+I would say test1 was a compleate disaster 
+Lets disect it!
+Give me you short thoghts now in the next prompt i will give you my full claw session for deeper analysis!

@@ -1,72 +1,123 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import { motion } from 'motion/react'
-import { PROJECTS } from '../data/content'
-import { packProjects } from '../utils/potpack'
+import { motion as Motion } from 'motion/react'
+import { getProjectCards } from '../utils/projectLayout'
+import { measureProjectFit } from '../utils/measureProjectFit'
 
-export default function ProjectsArticle() {
+/** @param {{ id: string, startx: number, starty: number, width: number, height: number }[]} cards */
+function cardsToRects(cards) {
+  /** @type {Record<string, { x: number, y: number, w: number, h: number }>} */
+  const rects = {}
+  for (const c of cards) {
+    rects[c.id] = { x: c.startx, y: c.starty, w: c.width, h: c.height }
+  }
+  return rects
+}
+
+export default function ProjectsArticle({ copy }) {
   const containerRef = useRef(null)
-  const [rects, setRects] = useState({})
-  const [height, setHeight] = useState(0)
+  const [rects,   setRects]   = useState({})
+  const [skipped, setSkipped] = useState(new Set())
+  const [flags,   setFlags]   = useState({})
+
+  const projects = copy.items
 
   useLayoutEffect(() => {
     const el = containerRef.current
     if (!el) return
+
     const run = () => {
-      const w = el.clientWidth
-      if (w <= 0) return
-      const { rects, height } = packProjects(PROJECTS, w)
-      setRects(rects)
-      setHeight(height)
+      const W = el.clientWidth
+      const H = el.clientHeight
+      if (W <= 0 || H <= 0) return
+
+      // ── Pass 1: pack all projects ─────────────────────────────────────────
+      let rects = cardsToRects(getProjectCards(W, H, projects))
+
+      // ── Measure titles; collect items whose title doesn't fit ─────────────
+      const titleSkipped = new Set()
+      for (const p of projects) {
+        const r = rects[p.id]
+        if (!r) continue
+        const fit = measureProjectFit(p, r)
+        if (!fit.titleFits) titleSkipped.add(p.id)
+      }
+
+      // ── Pass 2: re-pack without skipped items (single re-pass only) ────────
+      let finalRects = rects
+      if (titleSkipped.size > 0) {
+        const remaining = projects.filter(p => !titleSkipped.has(p.id))
+        if (remaining.length > 0) {
+          finalRects = cardsToRects(getProjectCards(W, H, remaining))
+        } else {
+          finalRects = {}
+        }
+      }
+
+      // ── Measure all content flags against the final layout ────────────────
+      const finalSkipped = new Set(titleSkipped)
+      const nextFlags    = {}
+
+      for (const p of projects) {
+        if (finalSkipped.has(p.id)) continue
+        const r = finalRects[p.id]
+        if (!r) continue
+        const fit = measureProjectFit(p, r)
+        if (!fit.titleFits) {
+          finalSkipped.add(p.id)
+          continue
+        }
+        nextFlags[p.id] = { showBody: fit.showBody, showTags: fit.showTags }
+      }
+
+      setRects(finalRects)
+      setSkipped(finalSkipped)
+      setFlags(nextFlags)
     }
+
     run()
+    document.fonts.ready.then(run)
+
     const ro = new ResizeObserver(run)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [])
+  }, [projects])
 
   return (
-    <motion.section
-      className="glass"
+    <Motion.section
+      className="glass projects-article"
       initial={{ opacity: 0, y: 36 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: .7, ease: [.16, 1, .3, 1] }}
       viewport={{ once: true, amount: .1 }}
     >
-      <div className="article-pad">
+      <div className="article-pad article-pad--projects">
         <div className="article-head">
-          <span className="smallcaps">Work article</span>
-          <h3 className="article-title">Projects sized by importance.</h3>
-          <p className="article-deck">
-            Packed like a portfolio heatmap — larger work gets more space,
-            smaller work still keeps its place in the grid.
-          </p>
+          <span className="smallcaps">{copy.eyebrow}</span>
+          <h3 className="article-title">{copy.title}</h3>
+          <p className="article-deck">{copy.deck}</p>
         </div>
 
-        {/* Outer container — sized by the packer */}
-        <div
-          ref={containerRef}
-          className="projects-layout"
-          style={height > 0 ? { height } : undefined}
-        >
-          {PROJECTS.map(p => {
+        {/* projects-layout fills remaining flex space (flex: 1 1 0 in CSS) */}
+        <div ref={containerRef} className="projects-layout">
+          {projects.map(p => {
+            if (skipped.has(p.id)) return null
             const b = rects[p.id]
             if (!b) return null
+            const f = flags[p.id] ?? { showBody: true, showTags: true }
 
             return (
-              // Outer wrapper — owns position & size, provides padding for spacing
               <div
                 key={p.id}
                 style={{
                   position: 'absolute',
-                  left: b.x,
-                  top:  b.y,
+                  left:   b.x,
+                  top:    b.y,
                   width:  b.w,
                   height: b.h,
                   boxSizing: 'border-box',
                 }}
               >
-                {/* Inner article — fills the padded space, holds all content */}
-                <motion.article
+                <Motion.article
                   className="projects-item"
                   style={{ width: '97.5%', height: '97.5%' }}
                   whileHover={{ y: -3, boxShadow: 'var(--shadow-lg)' }}
@@ -77,17 +128,24 @@ export default function ProjectsArticle() {
                       <img src={p.image} alt={p.title} />
                     </div>
                   )}
+
                   <h4 className="project-title">{p.title}</h4>
-                  <p className="project-body">{p.body}</p>
-                  <div className="tags">
-                    {p.tags.map(t => <span className="tag" key={t}>{t}</span>)}
-                  </div>
-                </motion.article>
+
+                  {f.showBody && (
+                    <p className="project-body">{p.body}</p>
+                  )}
+
+                  {f.showTags && (
+                    <div className="tags">
+                      {p.tags.map(t => <span className="tag" key={t}>{t}</span>)}
+                    </div>
+                  )}
+                </Motion.article>
               </div>
             )
           })}
         </div>
       </div>
-    </motion.section>
+    </Motion.section>
   )
 }

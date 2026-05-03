@@ -1,0 +1,75 @@
+ :c1={
+this serves as an orinetational prompt
+How article size is currently determined
+The overall feature page card height is forced by .newspaper-page--tall .glass { min-height: calc(200vh - 80px); } in src/styles/global.css.
+Under @media (max-width: 1080px), that drops to min-height: calc(100vh - 80px).
+Inside that fixed-height card, .feature-article-pad and .timeline-section use flex with flex: 1, so the timeline gets “remaining height”.
+Timeline cards then size from .timeline-col with height: 100% + aspect-ratio.
+So yes: card width should derive from height. But then…
+
+Why your ratio keeps changing
+At the bottom of src/styles/global.css, these media rules override the base value:
+
+@media (orientation: landscape) { .timeline-col { --timeline-col-ratio: 3 / 2; } }
+@media (orientation: portrait) { .timeline-col { --timeline-col-ratio: 3 / 5; } }
+That means your 13 / 20 is ignored in landscape.
+
+Root layout issue (forced horizontal timeline)
+These rules force horizontal behavior regardless of available vertical space:
+
+.timeline-scroll-wrap { overflow-x: auto; overflow-y: hidden; }
+.timeline-scroll { display: flex; min-width: max-content; }
+.timeline-col { flex-shrink: 0; }
+So the timeline will always become a sideways strip.
+
+What has to change
+You need a layout mode switch, not just ratio tweaks:
+
+Remove or neutralize orientation-based ratio overrides (or move your desired ratio after them).
+Add two timeline modes:
+horizontal (current behavior)
+vertical (stacked cards, no horizontal scroll)
+Switch mode by space, not device orientation:
+Prefer a container query (if you want pure CSS), or
+Use JS to measure timeline area and toggle a class when height is generous vs width.
+A good rule of thumb:
+
+If timeline container is wide/short -> horizontal.
+If container is narrow/tall -> vertical.
+If you want, I can outline the exact CSS for both modes and the smallest JS/class toggle needed (or a pure container-query version).
+}
+task: 1{
+context: this project, c1{
+    scope: reworking page responsivness to diffrent sceen variants and item sizeing{
+        goal: better optimisation of the timeline section for improved viewing according to screen aspect ratio and alocated size{
+            I want page orientation to not be hard coded to pixel values like "1080px" I want it to work with screen aspect ratios - concrete esurments could be used for minimal size calculations.
+            The main task here will be to make the timline chnage orinetation depending on the size of the screen tharefor the size of the article it is in adapts so it should adapt acordingly.
+            If the spae deligated for the timline in its article after the video is placed is smaller or equal to the articles width the timline should be oriented horizontaly and otherwise it shold be horizontal.
+            remember: if orientation is horizontal the "base" side for the timeline elements is the height since they will be 100% height the reverse is true foe vertical whare "base" is width and elements have 100% width  
+        }
+        gola: precise sizing should be determined by the height to width ratio of the timeline parent element as a whole{
+            if the parent aka. alocated space is 
+            1:2 then "base" side = 1 secodary = 0.85
+            1:1 then "base" side = 1 secodary = 0.45
+            2:1 then "base" side = 1 secondary = 0.25
+            the above mentioned should serve as "key frames" meaning ratios in between shold sclae from one key frame value to another
+            as an example if we have a ratio of 1:1.5 then "base" side = 1 secondary = 0.65 and so on
+        }
+    }
+}
+}
+task: 2{
+    context: this project, c1, task: 1{
+        scope: improving visual elements and page design and ux{
+            goal: using the timeline "time line" visual elemetn as a scroll bar instead of having a seprate one{
+                <div class="timeline-spine-h" aria-hidden="true"><div class="tl-dot"></div><div class="tl-line-h tl-line-h--after"></div></div> and the elements within it should be dragable.
+                the user will drag the timeline element iteself to scroll throgh the checkpoints.
+                Thes will necesitate the element be outside <div class="timeline-col"><div class="timeline-spine-h" aria-hidden="true"><div class="tl-dot"></div><div class="tl-line-h tl-line-h--after"></div></div><div class="checkpoint-card" style="opacity: 1; transform: none;"><div class="checkpoint-img"><img alt="Early experiments and self-driven learning" src="/images/timeline-before-uni.jpg"></div><div class="checkpoint-label"><span class="smallcaps">Before uni</span><h4>Early experiments and self-driven learning</h4><p>Before formal experience mattered, I was already learning by building small projects and exploring how software works.</p></div></div></div> - it should be outside each colume/row.
+            }
+            goal: scrolling in the timeline element as a whole should result in scrolling throgh the timeline{
+                the user can scroll the timeline backwards/forards withoth scrolling the page - the element "hijacks" the scrolling feature.
+                this should stop when the start/end of the timeeline is reached and then srolling should return back to scroling th page up/down respectivly
+            }
+        }
+    }
+}

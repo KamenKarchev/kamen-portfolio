@@ -1,0 +1,218 @@
+---
+description: "cut-load: Token-efficient 3-stage pipeline. Composer writes spec → Opus/Sonnet/Haiku plans → Composer implements. Trigger with @cut-load start --model <opus|sonnet|haiku>. Use when building features, components, or any non-trivial change where you want to minimize expensive model token usage."
+alwaysApply: false
+---
+
+# cut-load — Token-Efficient Feature Pipeline
+
+## Philosophy
+Each model does only what it is best at. No model oversteps its role.
+- **Cursor Composer** = repo awareness, code writing
+- **Opus/Sonnet/Haiku via Claw** = logic, architecture, edge case reasoning
+- **Caveman** = signal compression before expensive model input
+- **Context7** = live library docs during spec writing
+
+---
+
+## Trigger
+```
+@cut-load start --model <opus|sonnet|haiku>
+```
+Default model if omitted: `sonnet`
+
+---
+
+## Pipeline Overview
+
+```
+[context7] → [Stage 1: Composer writes spec] → [caveman compress]
+→ [Stage 2: Claw plans] → [Stage 3: Composer implements step by step]
+```
+
+All intermediate files live in `{project_root}/cut-load-prompts/`.
+
+---
+
+## Stage 0 — Setup
+
+Before anything else:
+1. Detect project root (git root or current workspace root)
+2. Create `cut-load-prompts/` in project root if it doesn't exist
+3. Read the user's raw idea from either:
+   - Inline text after the trigger command, OR
+   - `cut-load-prompts/01-raw-idea.md` if it exists
+4. Extract `--model` flag. Map to Claw model string:
+   - `opus` → `claude-opus-4-6`
+   - `sonnet` → `claude-sonnet-4-5`
+   - `haiku` → `claude-haiku-4-5`
+   - Default → `claude-sonnet-4-5`
+
+---
+
+## Stage 1 — Composer Writes the Spec
+
+### Pre-step: context7
+Before writing the spec, use the context7 skill to fetch docs for any
+libraries mentioned in the raw idea or likely involved (e.g. if animation
+is mentioned → fetch Framer Motion docs; if i18n → fetch i18next docs).
+Only fetch what is directly relevant. Keep it lean.
+
+### Spec Writing Rules
+- Scan the project repo for affected files and functions
+- Do NOT make architecture decisions — flag them as open questions for Claw
+- Do NOT write any implementation code
+- Keep prose minimal — bullet points preferred
+
+### Output: `cut-load-prompts/02-spec.md`
+
+```markdown
+# Spec: {{feature_name}}
+
+## Summary
+{{3 sentences max describing what this feature does}}
+
+## Affected Files
+{{exact file paths and function/component names that will change}}
+
+## New Files
+{{suggested paths for files to be created}}
+
+## Component Breakdown
+{{props, state, children for each new/modified component}}
+
+## Interaction & Animation Requirements
+{{precise mechanical description — no prose}}
+
+## State Management
+{{what state changes, where it lives, how it flows}}
+
+## Library APIs Needed
+{{specific methods/hooks from context7 docs, e.g. useAnimation from framer-motion}}
+
+## Open Questions for Claw
+{{ambiguities, architecture decisions, edge cases Composer cannot resolve}}
+```
+
+---
+
+## Stage 1.5 — Caveman Compression
+
+After writing `02-spec.md`, invoke the caveman skill to compress it:
+- Strip all prose and filler language
+- Keep: file paths, function names, component names, state descriptions, open questions
+- Remove: transitional sentences, obvious statements, repeated context
+- Overwrite `02-spec.md` with the compressed version
+- Target: reduce token count by 30-50% without losing signal
+
+---
+
+## Stage 2 — Claw Plans
+
+### Trigger Claw via terminal
+Run this command from the project root:
+
+```powershell
+$spec = Get-Content "cut-load-prompts/02-spec.md" -Raw
+$preamble = @"
+<role>
+You are an expert software architect. Your ONLY output is a numbered implementation plan. You write zero code. Cursor Composer will execute your plan step by step.
+</role>
+<context>
+Executing model after you: Cursor Composer
+Project: $(Split-Path -Leaf (Get-Location))
+</context>
+<task>
+Write a step-by-step implementation plan saved to cut-load-prompts/03-opus-plan.md.
+Each step must include:
+- Step N: [title]
+- Files affected: [exact paths]
+- What to do: [precise instructions, no code]
+- Why: [your architectural reasoning]
+- Verify: [how to confirm this step worked]
+Resolve all open questions from the spec before planning.
+Flag any steps with high risk of breaking existing functionality.
+Maximum 10 steps.
+Do NOT write code, pseudocode, or JSX.
+</task>
+<next_actor>
+Cursor Composer executes this plan. It needs precision, not prose.
+</next_actor>
+<spec>
+$spec
+</spec>
+"@
+$preamble | & "C:\Users\kamen\Desktop\claw-code\rust\target\debug\claw.exe" --model {{claw_model}} --pipe --output "cut-load-prompts/03-opus-plan.md"
+```
+
+### Fallback (if --pipe flag unsupported)
+If the terminal command fails, Composer should:
+1. Write the full preamble + spec to `cut-load-prompts/02-claw-input.md`
+2. Print this message to the user:
+
+```
+⚠️  Claw pipe not supported. Manual handoff required:
+1. Open a terminal in the project root
+2. Run: .\C:\Users\kamen\Desktop\claw-code\rust\target\debug\claw.exe
+3. Paste the contents of cut-load-prompts/02-claw-input.md
+4. Save Claw's response to cut-load-prompts/03-opus-plan.md
+5. Return here and say: @cut-load resume
+```
+
+### Resume trigger
+```
+@cut-load resume
+```
+Picks up from Stage 3 using existing `03-opus-plan.md`.
+
+---
+
+ 
+
+### Rules
+- Read `cut-load-prompts/03-opus-plan.md`
+- Execute ONE step at a time
+- After each step, run the Verify check defined in the plan
+- Append progress to `cut-load-prompts/04-implementation-log.md`:
+  ```
+  ## Step N — {{title}}
+  Status: complete | blocked
+  Files changed: {{list}}
+  Verify result: {{output of verify check}}
+  Notes: {{anything unexpected}}
+  ```
+- STOP after each step and ask:
+  ```
+  ✅ Step N complete. Proceed to Step N+1: "{{next step title}}"? (yes/no/explain)
+  ```
+- If the user says `explain` → summarize what the next step will do before proceeding
+- Only touch files listed in the current step
+- If blocked → report exact blocker, do not guess a fix
+
+### Abort trigger
+```
+@cut-load abort
+```
+Stops the pipeline. Leaves all files intact for inspection.
+
+---
+
+## File Reference
+
+| File | Written by | Purpose |
+|---|---|---|
+| `01-raw-idea.md` | You (optional) | Your free-text feature idea |
+| `02-spec.md` | Composer → Caveman | Lean technical spec |
+| `02-claw-input.md` | Composer (fallback) | Full prompt for manual Claw paste |
+| `03-opus-plan.md` | Claw/Opus | Step-by-step implementation plan |
+| `04-implementation-log.md` | Composer | Per-step progress log |
+
+---
+
+## Model Reference
+
+| Flag | Claw model string | Use when |
+|---|---|---|
+| `--model opus` | `claude-opus-4-6` | Complex logic, novel architecture, many edge cases |
+| `--model sonnet` | `claude-sonnet-4-5` | Most features — good balance of cost and quality |
+| `--model haiku` | `claude-haiku-4-5` | Simple, well-defined tasks with clear spec |
+

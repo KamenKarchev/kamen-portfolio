@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion, useMotionValue, useTransform, animate } from 'motion/react'
+import { motion as Motion, useMotionValue, useTransform, animate } from 'motion/react'
 
 const DRAG_THRESHOLD = 18
 const LEVER_TRAVEL = 32
@@ -71,7 +71,7 @@ export default function LightSwitch({ theme, toggleTheme }) {
       <div className="switch-track" aria-hidden="true" />
 
       {/* Draggable knob */}
-      <motion.button
+      <Motion.button
         className="switch-knob"
         drag="y"
         dragConstraints={{ top: 0, bottom: LEVER_TRAVEL }}
@@ -84,12 +84,12 @@ export default function LightSwitch({ theme, toggleTheme }) {
         tabIndex={0}
       >
         {theme === 'dark' ? <MoonIcon /> : <SunIcon />}
-      </motion.button>
+      </Motion.button>
 
       {/* Pull-down arrow hints */}
       <div className="switch-arrows" aria-hidden="true">
         {[0, 1, 2].map((i) => (
-          <motion.span
+          <Motion.span
             key={i}
             className="switch-arrow"
             custom={i}
@@ -100,7 +100,7 @@ export default function LightSwitch({ theme, toggleTheme }) {
             <svg width="10" height="7" viewBox="0 0 10 7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M1 1.5L5 5.5L9 1.5" />
             </svg>
-          </motion.span>
+          </Motion.span>
         ))}
       </div>
     </div>
