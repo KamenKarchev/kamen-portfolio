@@ -43,9 +43,10 @@ import { EN_PROJECTS } from '../data/content.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ASPECT = 1.5;           // width : height ratio for cards
-const MARGIN_WINDOW = 0.1;    // 10% match tolerance
-const RECT_EPSILON = 1e-6;    // float tolerance
+const ASPECT        = 1.5;   // width : height ratio for cards
+const MARGIN_WINDOW = 0.1;   // 10% area match tolerance
+const RECT_EPSILON  = 1e-6;  // float tolerance
+const RATIO_TOLERANCE = 0.5; // ±50%: candidate ratio must be in [parentRatio*0.5, parentRatio*2.0]
 
 // ─── Geometry primitives ─────────────────────────────────────────────────────
 
@@ -157,10 +158,10 @@ class Space {
     }
 
     const id = segment.id;
-    const tl = new SpaceSegment(id,             box(xmin, ymin, x,    y),    []);
-    const tr = new SpaceSegment(id + '1',       box(x,    ymin, xmax, y),    []);
-    const bl = new SpaceSegment(id + '2',       box(xmin, y,    x,    ymax), []);
-    const br = new SpaceSegment(id + '3',       box(x,    y,    xmax, ymax), []);
+    const tl = new SpaceSegment(id,       box(xmin, ymin, x,    y),    []);
+    const tr = new SpaceSegment(id + '1', box(x,    ymin, xmax, y),    []);
+    const bl = new SpaceSegment(id + '2', box(xmin, y,    x,    ymax), []);
+    const br = new SpaceSegment(id + '3', box(x,    y,    xmax, ymax), []);
 
     const pool = this.segments.concat([tl, tr, bl, br]);
     this.newNeighbours(tl.box, tl.id, pool);
@@ -306,6 +307,33 @@ function applyCredit(credit, actual, desired) {
   return credit - (actual - desired);
 }
 
+/**
+ * Returns true if the candidate's aspect ratio is within ±RATIO_TOLERANCE of
+ * the parent ratio.
+ *
+ * "50% accuracy" means the acceptable band is:
+ *   [parentRatio * (1 - RATIO_TOLERANCE), parentRatio * (1 + RATIO_TOLERANCE) * 2]
+ * which simplifies to [parentRatio * 0.5, parentRatio * 2.0].
+ *
+ * Both the candidate ratio and its inverse are tested so that a tall candidate
+ * is not unfairly rejected when the parent is wide (and vice versa).
+ *
+ * @param {number} segW
+ * @param {number} segH
+ * @param {number} parentRatio  baseWidth / baseHeight
+ * @returns {boolean}
+ */
+function withinRatioTolerance(segW, segH, parentRatio) {
+  if (segH === 0 || segW === 0) return false;
+  const ratio    = segW / segH;
+  const lo       = parentRatio * RATIO_TOLERANCE;       // parentRatio * 0.5
+  const hi       = parentRatio / RATIO_TOLERANCE;       // parentRatio * 2.0
+  // also accept the flipped orientation
+  const loFlip   = (1 / parentRatio) * RATIO_TOLERANCE;
+  const hiFlip   = (1 / parentRatio) / RATIO_TOLERANCE;
+  return (ratio >= lo && ratio <= hi) || (ratio >= loFlip && ratio <= hiFlip);
+}
+
 /** SELL (green) overlay inside card */
 function makeSellOverlay(card, diffMagnitude) {
   const targetArea = diffMagnitude;
@@ -320,16 +348,10 @@ function makeSellOverlay(card, diffMagnitude) {
   const x = card.startx + (card.width - w) / 2;
   const y = card.starty + (card.height - h) / 2;
 
-  return {
-    type: 'sell',
-    x,
-    y,
-    width: w,
-    height: h,
-  };
+  return { type: 'sell', x, y, width: w, height: h };
 }
 
-/** BUY (red) overlay — same centering logic as SELL, just uses actual - desired */
+/** BUY (red) overlay — same centering logic as SELL */
 function makeBuyOverlay(card, diffMagnitude) {
   const targetArea = diffMagnitude;
   if (targetArea <= 0) return undefined;
@@ -343,13 +365,7 @@ function makeBuyOverlay(card, diffMagnitude) {
   const x = card.startx + (card.width - w) / 2;
   const y = card.starty + (card.height - h) / 2;
 
-  return {
-    type: 'buy',
-    x,
-    y,
-    width: w,
-    height: h,
-  };
+  return { type: 'buy', x, y, width: w, height: h };
 }
 
 // ─── SpaceAllocator ───────────────────────────────────────────────────────────
@@ -364,8 +380,11 @@ class SpaceAllocator {
     this.blueprints = [...blueprints];
     this.credit     = 0;
 
-    this.marginWindow = MARGIN_WINDOW;
+    this.marginWindow    = MARGIN_WINDOW;
     this.minaProjectArea = 0;
+
+    // parent ratio — derived once from the canvas dimensions
+    this.parentRatio = space.getBaseWidth() / (space.getBaseHeight() || 1);
 
     /** @type {Map<number, string[]>} */
     this.segmentMarket = new Map();
@@ -431,7 +450,6 @@ class SpaceAllocator {
   mergePotential() {
     this.potentialIds.clear();
 
-    // Clean old potentials from market
     for (const [bucket, ids] of this.segmentMarket.entries()) {
       const next = ids.filter((id) => !id.startsWith('p-'));
       if (next.length === 0) this.segmentMarket.delete(bucket);
@@ -466,6 +484,31 @@ class SpaceAllocator {
   }
 
   /**
+   * Returns the aspect ratio [w/h] of a candidate's geometry.
+   * For potentials, uses the merged bounding box.
+   * @param {Candidate} candidate
+   * @returns {number}
+   */
+  _candidateRatio(candidate) {
+    if (candidate.type === 'real') {
+      const seg = this.space.segments.find((s) => s.id === candidate.id);
+      if (!seg) return 1;
+      return seg.getWidth() / (seg.getHeight() || 1);
+    }
+    // potential: compute merged box w/h
+    const segs = candidate.segments ?? this.space.getSegmentsByIds(
+      this.potentialIds.get(candidate.id) ?? []
+    );
+    if (!segs.length) return 1;
+    const merged = segs.map((s) => s.box).reduce((acc, b) => acc.merge(b));
+    return merged.width / (merged.height || 1);
+  }
+
+  /**
+   * Builds the full candidate list, then filters by parent-ratio tolerance.
+   * Falls back to the unfiltered list if no candidate passes the ratio check,
+   * so allocation never gets stuck.
+   *
    * @param {ProjectBlueprint} blueprint
    * @returns {{ bigger: Candidate | null; smaller: Candidate[] }}
    */
@@ -474,20 +517,53 @@ class SpaceAllocator {
     const margin      = projectArea * this.marginWindow;
 
     /** @type {Candidate[]} */
-    const candidates = [];
+    const allCandidates = [];
 
     for (const seg of this.space.segments) {
       if (this.allocatedIds.has(seg.id)) continue;
-      candidates.push({ id: seg.id, area: seg.getArea(), type: 'real' });
+      allCandidates.push({ id: seg.id, area: seg.getArea(), type: 'real' });
     }
 
     for (const [pid, realIds] of this.potentialIds.entries()) {
       const segs = this.space.getSegmentsByIds(realIds);
       if (segs.some((s) => this.allocatedIds.has(s.id))) continue;
       const area = segs.reduce((acc, s) => acc + s.getArea(), 0);
-      candidates.push({ id: pid, area, type: 'potential', segments: segs });
+      allCandidates.push({ id: pid, area, type: 'potential', segments: segs });
     }
 
+    // ── ratio filter ────────────────────────────────────────────────────────
+    // Keep only candidates whose aspect ratio falls within ±50% of the parent.
+    // If none pass, use the full list so the allocator is never starved.
+    const ratioFiltered = allCandidates.filter((c) => {
+      const ratio = this._candidateRatio(c);
+      const h     = ratio > 0 ? /* already w/h */ 1 : 1;
+      return withinRatioTolerance(ratio, h, this.parentRatio);
+      // withinRatioTolerance expects (segW, segH, parentRatio)
+      // but _candidateRatio already gives w/h, so rewrite the call:
+    });
+
+    // ── fix: pass raw w and h ────────────────────────────────────────────────
+    // Re-filter properly using raw dimensions.
+    const candidates = (() => {
+      const filtered = allCandidates.filter((c) => {
+        if (c.type === 'real') {
+          const seg = this.space.segments.find((s) => s.id === c.id);
+          if (!seg) return false;
+          return withinRatioTolerance(seg.getWidth(), seg.getHeight(), this.parentRatio);
+        }
+        // potential
+        const segs = c.segments ?? this.space.getSegmentsByIds(
+          this.potentialIds.get(c.id) ?? []
+        );
+        if (!segs.length) return false;
+        const mb = segs.map((s) => s.box).reduce((acc, b) => acc.merge(b));
+        return withinRatioTolerance(mb.width, mb.height, this.parentRatio);
+      });
+      return filtered.length > 0 ? filtered : allCandidates;
+    })();
+    // ────────────────────────────────────────────────────────────────────────
+
+    // perfect area match within margin
     const perfect = candidates.find((c) => Math.abs(c.area - projectArea) <= margin);
     if (perfect) return { bigger: perfect, smaller: [] };
 
@@ -570,9 +646,8 @@ class SpaceAllocator {
     const { x, y } = this._computeCutPoint(segment, blueprint);
     const tl = this.space.cut(x, y);
 
-    const target = tl ?? segment;
-    const card   = this._allocate(target, blueprint);
-
+    const target  = tl ?? segment;
+    const card    = this._allocate(target, blueprint);
     const actual  = target.getArea();
     const desired = blueprint.area;
     const diff    = actual - desired;
@@ -583,11 +658,8 @@ class SpaceAllocator {
     const mode = this.mode;
 
     let overlay;
-    if (diff > 0) {
-      overlay = makeBuyOverlay(card, diff);
-    } else if (diff < 0) {
-      overlay = makeSellOverlay(card, -diff);
-    }
+    if (diff > 0)      overlay = makeBuyOverlay(card, diff);
+    else if (diff < 0) overlay = makeSellOverlay(card, -diff);
 
     return { card, mode, desiredArea: desired, actualArea: actual, diff, overlay, credit: this.credit };
   }
@@ -618,13 +690,13 @@ class SpaceAllocator {
     if (!segment) return null;
 
     if (segment.getArea() >= blueprint.area) {
-      return { card, mode, desiredArea: desired, actualArea: actual, diff, overlay, credit: this.credit };
+      return this._allocateWithCut(segment, blueprint);
     }
 
-    const card   = this._allocate(segment, blueprint);
-    const actual = segment.getArea();
+    const card    = this._allocate(segment, blueprint);
+    const actual  = segment.getArea();
     const desired = blueprint.area;
-    const diff   = actual - desired;
+    const diff    = actual - desired;
 
     this.credit = applyCredit(this.credit, actual, desired);
     this._updateSegmentMarket();
@@ -632,13 +704,10 @@ class SpaceAllocator {
     const mode = this.mode;
 
     let overlay;
-    if (diff > 0) {
-      overlay = makeBuyOverlay(card, diff);
-    } else if (diff < 0) {
-      overlay = makeSellOverlay(card, -diff);
-    }
+    if (diff > 0)      overlay = makeBuyOverlay(card, diff);
+    else if (diff < 0) overlay = makeSellOverlay(card, -diff);
 
-    return { card, mode, desiredArea: desired, actualArea: actual, diff, overlay };
+    return { card, mode, desiredArea: desired, actualArea: actual, diff, overlay, credit: this.credit };
   }
 }
 
