@@ -31,20 +31,15 @@ import { EN_PROJECTS } from '../data/content.js';
 
 /**
  * @typedef {{
- *   card: ProjectCard;
- *   mode: 'BUY' | 'SELL';
- *   desiredArea: number;
- *   actualArea: number;
- *   diff: number; // actual - desired
- *   overlay?: {
- *     type: 'buy' | 'sell';
- *     x: number;
- *     y: number;
- *     width: number;
- *     height: number;
- *   };
- * }} AllocationStep
- */
+*   card: ProjectCard;
+*   mode: 'BUY' | 'SELL';
+*   desiredArea: number;
+*   actualArea: number;
+*   diff: number;
+*   credit: number;
+*   overlay?: { type: 'buy' | 'sell'; x: number; y: number; width: number; height: number; };
+* }} AllocationStep
+*/
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -334,31 +329,19 @@ function makeSellOverlay(card, diffMagnitude) {
   };
 }
 
-/** BUY (red) overlay adjacent to TL card inside original segment */
-function makeBuyOverlay(card, diffMagnitude, segmentBox) {
-  const extraArea = diffMagnitude;
-  if (extraArea <= 0) return undefined;
+/** BUY (red) overlay — same centering logic as SELL, just uses actual - desired */
+function makeBuyOverlay(card, diffMagnitude) {
+  const targetArea = diffMagnitude;
+  if (targetArea <= 0) return undefined;
 
-  let w = Math.sqrt(extraArea / ASPECT);
+  let w = Math.sqrt(targetArea / ASPECT);
   let h = w * ASPECT;
 
-  const segWidth  = segmentBox.xmax - segmentBox.xmin;
-  const segHeight = segmentBox.ymax - segmentBox.ymin;
+  w = Math.min(w, card.width);
+  h = Math.min(h, card.height);
 
-  h = Math.min(h, segHeight);
-  w = Math.min(w, segWidth - (card.startx - segmentBox.xmin) - card.width);
-
-  let x = card.startx + card.width;
-  let y = card.starty;
-
-  if (w <= 0 || x + w > segmentBox.xmax) {
-    w = Math.min(w, segWidth);
-    h = Math.min(h, segHeight - (card.starty - segmentBox.ymin) - card.height);
-    x = segmentBox.xmin;
-    y = card.starty + card.height;
-  }
-
-  if (w <= 0 || h <= 0) return undefined;
+  const x = card.startx + (card.width - w) / 2;
+  const y = card.starty + (card.height - h) / 2;
 
   return {
     type: 'buy',
@@ -601,12 +584,12 @@ class SpaceAllocator {
 
     let overlay;
     if (diff > 0) {
-      overlay = makeBuyOverlay(card, diff, segment.box);
+      overlay = makeBuyOverlay(card, diff);
     } else if (diff < 0) {
       overlay = makeSellOverlay(card, -diff);
     }
 
-    return { card, mode, desiredArea: desired, actualArea: actual, diff, overlay };
+    return { card, mode, desiredArea: desired, actualArea: actual, diff, overlay, credit: this.credit };
   }
 
   /**
@@ -635,7 +618,7 @@ class SpaceAllocator {
     if (!segment) return null;
 
     if (segment.getArea() >= blueprint.area) {
-      return this._allocateWithCut(segment, blueprint);
+      return { card, mode, desiredArea: desired, actualArea: actual, diff, overlay, credit: this.credit };
     }
 
     const card   = this._allocate(segment, blueprint);
@@ -650,7 +633,7 @@ class SpaceAllocator {
 
     let overlay;
     if (diff > 0) {
-      overlay = makeBuyOverlay(card, diff, segment.box);
+      overlay = makeBuyOverlay(card, diff);
     } else if (diff < 0) {
       overlay = makeSellOverlay(card, -diff);
     }
