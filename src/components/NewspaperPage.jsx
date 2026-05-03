@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'motion/react'
+import { motion as Motion, useScroll, useTransform } from 'motion/react'
 
 /*
   Card-deck page transition.
@@ -65,7 +65,7 @@ export default function NewspaperPage({ children, isFirst = false, tall = false 
 
   return (
     <div ref={ref} className={`newspaper-page${tall ? ' newspaper-page--tall' : ''}`}>
-      <motion.div
+      <Motion.div
         className="newspaper-page-inner"
         style={{
           rotateX,
@@ -81,7 +81,7 @@ export default function NewspaperPage({ children, isFirst = false, tall = false 
         }}
       >
         {children}
-      </motion.div>
+      </Motion.div>
     </div>
   )
 }

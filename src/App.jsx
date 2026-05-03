@@ -1,47 +1,50 @@
 import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Nav from './components/Nav'
-import Masthead from './components/Masthead'
-import Hero from './components/Hero'
-import SectionHead from './components/SectionHead'
-import FeatureArticle from './components/FeatureArticle'
-import ProjectsArticle from './components/ProjectsArticle'
-import ContactArticle from './components/ContactArticle'
-import NewspaperPage from './components/NewspaperPage'
-import Footer from './components/Footer'
+import HomePage from './pages/HomePage'
+import NemotryPage from './pages/NemotryPage'
+import { CONTENT } from './data/content'
+
+const DEFAULT_LANGUAGE = 'en'
+const LANGUAGE_STORAGE_KEY = 'kamen-portfolio-language'
+
+function getInitialLanguage() {
+  const saved = window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
+  return saved && CONTENT[saved] ? saved : DEFAULT_LANGUAGE
+}
 
 export default function App() {
   const [theme, setTheme] = useState(
     () => window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   )
+  const [language, setLanguage] = useState(getInitialLanguage)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
   }, [theme])
 
+  useEffect(() => {
+    document.documentElement.setAttribute('lang', language)
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language)
+  }, [language])
+
   const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark')
+  const copy = CONTENT[language]
 
   return (
-    <>
-      <Nav theme={theme} toggleTheme={toggleTheme} />
-      <main className="wrap">
-        <Masthead />
-        <NewspaperPage isFirst>
-          <Hero />
-        </NewspaperPage>
-        <NewspaperPage tall>
-          <SectionHead eyebrow="Lead article" title="Video portfolio and about me" id="feature" />
-          <FeatureArticle />
-        </NewspaperPage>
-        <NewspaperPage tall>
-          <SectionHead eyebrow="Second article" title="Projects" id="projects" />
-          <ProjectsArticle />
-        </NewspaperPage>
-        <NewspaperPage tall>
-          <SectionHead eyebrow="Back page" title="Links, CV and contact" id="contact" />
-          <ContactArticle />
-        </NewspaperPage>
-        <Footer />
-      </main>
-    </>
+    <BrowserRouter>
+      <Nav
+        theme={theme}
+        toggleTheme={toggleTheme}
+        language={language}
+        onLanguageChange={setLanguage}
+        copy={copy.nav}
+        languageCopy={copy.languageSwitch}
+      />
+      <Routes>
+        <Route path="/" element={<HomePage copy={copy} />} />
+        <Route path="/nemotry" element={<NemotryPage copy={copy} />} />
+      </Routes>
+    </BrowserRouter>
   )
 }

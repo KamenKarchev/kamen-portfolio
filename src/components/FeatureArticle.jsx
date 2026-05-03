@@ -1,15 +1,21 @@
-import { motion } from 'motion/react'
-import { TIMELINE } from '../data/content'
+import { useCallback, useEffect, useRef } from 'react'
+import { motion as Motion } from 'motion/react'
+import { FEATURE_PORTFOLIO_YOUTUBE_ID } from '../data/content'
+import { useTimelineLayout } from '../hooks/useTimelineLayout'
+import { parseYouTubeVideoId } from '../utils/parseYouTubeVideoId'
 
+const featureYoutubeEmbedId = parseYouTubeVideoId(FEATURE_PORTFOLIO_YOUTUBE_ID)
+
+/* Opacity-only — no transform so layout stays stable during scroll/mode changes */
 const item = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: .6, ease: [.16, 1, .3, 1] } },
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: .45, ease: [.16, 1, .3, 1] } },
 }
 const stagger = { show: { transition: { staggerChildren: .12 } } }
 
 function CheckpointCard({ cp }) {
   return (
-    <motion.div className="checkpoint-card" variants={item}>
+    <Motion.div className="checkpoint-card" variants={item}>
       <div className="checkpoint-img">
         {cp.image && <img src={cp.image} alt={cp.title} />}
       </div>
@@ -18,13 +24,92 @@ function CheckpointCard({ cp }) {
         <h4>{cp.title}</h4>
         <p>{cp.body}</p>
       </div>
-    </motion.div>
+    </Motion.div>
   )
 }
 
-export default function FeatureArticle() {
+export default function FeatureArticle({ copy }) {
+  const timelineWindowRef = useTimelineLayout()
+  const scrollWrapRef = useRef(null)
+
+  const isHorizontal = useCallback(
+    () => (timelineWindowRef.current?.dataset.tlMode ?? 'horizontal') === 'horizontal',
+    [timelineWindowRef],
+  )
+
+  // Natural-pan drag: grab a spine segment, slide content 1:1 like panning cards
+  useEffect(() => {
+    const wrap = scrollWrapRef.current
+    if (!wrap) return
+
+    let dragging = false
+    let startX = 0
+    let startY = 0
+    let startScroll = 0
+
+    const onDown = (e) => {
+      if (!e.target.closest('.tl-segment')) return
+      dragging = true
+      startX = e.clientX
+      startY = e.clientY
+      startScroll = isHorizontal() ? wrap.scrollLeft : wrap.scrollTop
+      wrap.setPointerCapture(e.pointerId)
+      wrap.classList.add('is-dragging')
+      e.preventDefault()
+    }
+    const onMove = (e) => {
+      if (!dragging) return
+      const h = isHorizontal()
+      // Natural pan: drag right → content moves right → earlier entries visible
+      const delta = h ? (e.clientX - startX) : (e.clientY - startY)
+      if (h) wrap.scrollLeft = startScroll - delta
+      else wrap.scrollTop = startScroll - delta
+    }
+    const onUp = (e) => {
+      if (dragging) {
+        wrap.releasePointerCapture(e.pointerId)
+        wrap.classList.remove('is-dragging')
+      }
+      dragging = false
+    }
+
+    wrap.addEventListener('pointerdown', onDown)
+    wrap.addEventListener('pointermove', onMove)
+    wrap.addEventListener('pointerup', onUp)
+    wrap.addEventListener('pointercancel', onUp)
+    return () => {
+      wrap.removeEventListener('pointerdown', onDown)
+      wrap.removeEventListener('pointermove', onMove)
+      wrap.removeEventListener('pointerup', onUp)
+      wrap.removeEventListener('pointercancel', onUp)
+    }
+  }, [isHorizontal])
+
+  // Wheel hijack: scroll timeline until edge, then let page scroll resume
+  useEffect(() => {
+    const winEl = timelineWindowRef.current
+    const wrap = scrollWrapRef.current
+    if (!winEl || !wrap) return
+
+    const onWheel = (e) => {
+      const h = isHorizontal()
+      const delta = e.deltaY !== 0 ? e.deltaY : e.deltaX
+      if (delta === 0) return
+      const max = h ? (wrap.scrollWidth - wrap.clientWidth) : (wrap.scrollHeight - wrap.clientHeight)
+      if (max <= 1) return
+      const pos = h ? wrap.scrollLeft : wrap.scrollTop
+      if ((delta < 0 && pos <= 0) || (delta > 0 && pos >= max - 0.5)) return
+      e.preventDefault()
+      if (h) wrap.scrollLeft = pos + delta
+      else wrap.scrollTop = pos + delta
+    }
+
+    winEl.addEventListener('wheel', onWheel, { passive: false })
+    return () => winEl.removeEventListener('wheel', onWheel)
+  }, [isHorizontal, timelineWindowRef])
+
   return (
-    <motion.section
+    <Motion.section
       className="glass feature-article-shell"
       initial={{ opacity: 0, y: 36 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -33,58 +118,70 @@ export default function FeatureArticle() {
     >
       <div className="article-pad feature-article-pad">
         <div className="article-head">
-          <span className="smallcaps">Headline feature</span>
-          <h3 className="article-title">Start with the voice, then show the path that built it.</h3>
-          <p className="article-deck">
-            This section opens with a short video introduction, then expands into the story behind
-            my technical direction, creative background, and growth over time.
-          </p>
+          <span className="smallcaps">{copy.eyebrow}</span>
+          <h3 className="article-title">{copy.title}</h3>
+          <p className="article-deck">{copy.deck}</p>
         </div>
 
-        {/* Video — always full-width on top */}
         <div className="feature-video-wrap">
-          <div className="video-frame">
-            <button className="play-btn" aria-label="Play video">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            </button>
-            <div className="caption">
-              <strong>Video portfolio</strong>
-              <span>A short introduction covering who I am, what I build, and where I want to go next.</span>
-            </div>
+          <div className="video-frame video-frame--yt">
+            {featureYoutubeEmbedId ? (
+              <iframe
+                className="yt-embed"
+                src={`https://www.youtube-nocookie.com/embed/${featureYoutubeEmbedId}?rel=0`}
+                title={copy.videoTitle}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
+            ) : (
+              <p className="feature-video-empty">
+                {copy.emptyVideo}
+              </p>
+            )}
           </div>
-          <p className="feature-body-copy">I did not arrive at software from one straight line; I came through curiosity, media work, and then deeper technical focus.</p>
+          <div className="caption caption--below-video">
+            <strong>{copy.videoLabel}</strong>
+            <span>{copy.videoMeta}</span>
+          </div>
+          <p className="feature-body-copy">{copy.body}</p>
         </div>
 
-        {/* Timeline — horizontal scroll, full-width, always visible */}
         <div className="timeline-section">
           <div className="timeline-section-head">
-            <span className="smallcaps">Timeline</span>
+            <span className="smallcaps">{copy.timelineEyebrow}</span>
             <div className="rule" />
           </div>
-          <div className="timeline-scroll-wrap">
-            <motion.div
-              className="timeline-scroll"
-              variants={stagger}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: .1 }}
-            >
-              {TIMELINE.map((cp, i) => (
-                <div className="timeline-col" key={cp.year}>
-                  <div className="timeline-spine-h" aria-hidden="true">
-                    {i > 0 && <div className="tl-line-h tl-line-h--before" />}
-                    <div className="tl-dot" />
-                    {i < TIMELINE.length - 1 && <div className="tl-line-h tl-line-h--after" />}
-                  </div>
-                  <CheckpointCard cp={cp} />
-                </div>
-              ))}
-            </motion.div>
+
+          {/*
+            Single continuous .timeline-spine-line inside .timeline-tracks-inner so left/right
+            span the full row width (not the viewport-clamped scroll-content box).
+          */}
+          <div className="timeline-window" ref={timelineWindowRef}>
+            <div className="timeline-scroll-wrap" ref={scrollWrapRef}>
+              <div className="timeline-scroll-content">
+                <Motion.div
+                  className="timeline-tracks-inner"
+                  variants={stagger}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true, amount: .1 }}
+                >
+                  <div className="timeline-spine-line" aria-hidden="true" />
+                  {copy.timeline.map((cp, i) => (
+                    <div className="timeline-track-col" key={i}>
+                      <div className="tl-segment" role="presentation" aria-hidden="true">
+                        <div className="tl-dot" />
+                      </div>
+                      <CheckpointCard cp={cp} />
+                    </div>
+                  ))}
+                </Motion.div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </motion.section>
+    </Motion.section>
   )
 }

@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Kamen Karchev — CV</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Spectral:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+<style>
+:root {
+    --font-family: 'Inter', sans-serif;
+    --font-size: 12.5px;
+  --accent:      #5e548e;
+  --accent-dark: #3d3060;
+  --accent-mid:  #7b6fa0;
+  --accent-light:#c8bbda;
+  --sidebar-bg:  #2d2640;
+  --sidebar-text:var(--white);
+  --sidebar-muted:#c8b8dc;
+  --paper:       #fafafa;
+  --text:        #141414;
+  --muted:       var(--accent-mid);
+  --line:        var(--accent-light);
+  --white:       #ffffff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{
+  height:100%;
+  background:var(--paper);
+}
+body{
+  min-height:100%;
+  background:var(--paper);
+  overflow:hidden;
+  font-family:var(--font-family);
+  color:var(--text);
+  font-size:var(--font-size);
+}
+/* ── PAGE SHELL ── */
+.page{
+  width:210mm;
+  min-height:297mm;
+  margin:0;
+  background:var(--paper);
+  box-shadow:0 14px 48px rgba(0,0,0,.22);
+  display:flex;
+  flex-direction:column;
+}
+/* ── PAGE 1 HERO ── */
+.hero{
+  background:linear-gradient(135deg,var(--accent-dark) 0%,var(--accent) 100%);
+  padding:18px 36px 16px;
+  color:var(--white);
+  text-align:center;
+}
+.hero-name{
+  font-size:32px;
+  font-weight:800;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  line-height:1.1;
+}
+.hero-title{
+  font-size:14px;
+  font-weight:300;
+  color:var(--accent-light);
+  margin-top:6px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+}
+.hero-tagline{
+  font-size:var(--font-size);
+  font-weight:300;
+  color:var(--accent-light);
+  line-height:1.7;
+  max-width:380px;
+}
+/* ── TWO-COLUMN BODY ── */
+.body{
+  display:grid;
+  grid-template-columns:40% 60%;
+  flex:1;
+}
+/* ── SIDEBAR ── */
+.sidebar{
+  background:var(--sidebar-bg);
+  color:var(--sidebar-text);
+  padding:24px 18px 28px;
+}
+.sidebar-photo{
+  width:110px;height:110px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#b09ac8,#6d537f 60%,var(--accent-dark));
+  border:4px solid var(--accent-mid);
+  margin:0 auto 22px;
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.35);
+  font-size:11px;text-align:center;
+}
+.sb-badge{
+  display:inline-block;
+  background:var(--accent);
+  color:var(--white);
+  font-size:var(--font-size);
+  font-weight:700;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  padding:4px 10px;
+  margin:14px 0 10px;
+  border-radius:2px;
+}
+.ame-text {
+font-family: 'Spectral', serif;
+  font-size: calc(var(--font-size) + 2px);
+  font-weight: 300;
+  line-height: 1.6;
+}
+.sb-text{
+  font-size:calc(var(--font-size));
+  line-height:1.75;
+  color:var(--sidebar-text);
+  font-weight:400;
+  text-align:justify;
+}
+.contact-item{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-bottom:8px;
+  font-size:var(--font-size);
+  font-weight:400;
+}
+.contact-item i{
+  width:18px;
+  text-align:center;
+  color:var(--accent-mid);
+  font-size:var(--font-size);
+  flex-shrink:0;
+}
+.contact-item a{
+  color:var(--sidebar-text);
+  text-decoration:none;
+}
+.contact-item a:hover{color:var(--accent-light);}
+/* skill bars */
+.skill-row{margin-bottom:9px;}
+.skill-label{font-size:calc(var(--font-size));font-weight:600;color:var(--sidebar-text);margin-bottom:3px;}
+.skill-track{background:rgba(255,255,255,.12);border-radius:3px;height:5px;overflow:hidden;}
+.skill-fill{height:100%;background:linear-gradient(90deg,var(--accent-mid),var(--accent-light));border-radius:3px;}
+.pill-list{list-style:none;display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}
+.pill-list li{
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.15);
+  color:var(--sidebar-muted);
+  font-size:var(--font-size);
+  padding:2px 8px;
+  border-radius:10px;
+}
+/* ── MAIN BODY ── */
+.main{
+  padding:22px 28px 22px 24px;
+}
+.sec-title{
+  font-size:var(--font-size);
+  font-weight:700;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--accent);
+  border-bottom:2px solid var(--accent);
+  padding-bottom:4px;
+  margin-bottom:14px;
+  margin-top:18px;
+}
+.sec-title:first-child{margin-top:0;}
+/* ── TIMELINE ── */
+.timeline{position:relative;padding-left:24px;}
+.timeline::before{
+  content:'';
+  position:absolute;
+  left:5px;top:10px;bottom:10px;
+  width:2px;
+  background:var(--line);
+}
+/* Entry: horizontal branch from vertical line to title */
+.tl-entry{position:relative;margin-bottom:18px;}
+.tl-entry::before{
+  content:'';
+  position:absolute;
+  left:-18px;top:10px;
+  width:13px;height:2px;
+  background:var(--line);
+  border-radius:1px;
+}
+.entry-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.tl-entry .entry-head{margin-bottom:2px;}
+.entry-title{font-size:calc(var(--font-size));font-weight:700;color:var(--sidebar-bg);line-height:1.3;}
+.year-pill{
+  font-size:calc(var(--font-size) - 2.0px);font-weight:700;
+  color:var(--white);
+  background:var(--accent);
+  padding:2px 8px;border-radius:10px;
+  white-space:nowrap;flex-shrink:0;
+}
+.tl-org{font-size:calc(var(--font-size) - 1.5px);color:var(--muted);margin-bottom:5px;font-weight:600;}
+
+/* Bullets: sub-vertical line with perpendicular branches per point */
+.tl-bullets{
+  list-style:none;
+  padding:0;
+  margin:6px 0 0 0;
+}
+.tl-bullets li,
+.proj-bullets li{
+  font-size:calc(var(--font-size) - 1.0px);
+  line-height:1.62;
+  margin-bottom:2px;
+  color:var(--text);
+}
+.tl-bullets li{
+  position:relative;
+  padding-left:20px;
+}
+/* Perpendicular horizontal branch for each bullet */
+.tl-bullets li::before{
+  content:'';
+  position:absolute;
+  left:-19px;top:9px;
+  width:30px;height:1px;
+  background:var(--accent-light);
+}
+/* subsection label */
+.subsec{
+  font-size:calc(var(--font-size));font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--accent-mid);
+  margin:14px 0 10px 0;
+  display:flex;align-items:center;gap:8px;
+}
+.subsec::after{content:'';flex:1;height:1px;background:var(--line);}
+/* project card */
+.proj-card{
+  border-left:3px solid var(--accent);
+  padding:8px 0 8px 12px;
+  margin-bottom:14px;
+}
+.proj-subtitle{
+  font-size:calc(var(--font-size));
+  color:var(--muted);
+  margin:3px 0 6px;
+  font-style:italic;
+  font-weight:600;
+}
+.proj-bullets{padding-left:14px;}
+/* ── FOOTER ── */
+.cv-footer{
+  background:var(--accent-dark);
+  color:var(--accent-light);
+  padding:9px 32px;
+  font-size:var(--font-size);
+  display:flex;
+  justify-content:center;
+  gap:24px;
+  flex-wrap:wrap;
+}
+.cv-footer a{color:var(--accent-light);text-decoration:none;}
+.cv-footer i{color:var(--accent-mid);margin-right:5px;}
+
+/* ── A4 + PDF (Print to PDF: set margins to Default or None for true 210×297 mm) ── */
+@page{
+  size:A4 portrait;
+  margin:0;
+}
+@media print{
+  html,body{
+    width:210mm;
+    margin:0;
+    padding:0;
+    background:#fff !important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .page{
+    width:210mm;
+    min-height:297mm;
+    max-width:210mm;
+    margin:0 !important;
+    padding:0;
+    box-shadow:none !important;
+    background:var(--paper);
+    page-break-after:always;
+    break-after:page;
+    overflow:visible;
+  }
+  .page:last-child{
+    page-break-after:auto;
+    break-after:auto;
+  }
+  .body{
+    flex:1;
+    min-height:0;
+  }
+  .proj-card,.hero{
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ PAGE 1 ═══════════════════════════ -->
+<div class="page">
+
+  <header class="hero">
+    <div class="hero-name">KAMEN KARCHEV</div>
+    <div class="hero-title">&nbsp;·&nbsp; Full-Stack Software Engineer &nbsp;·&nbsp;</div>
+  </header>
+
+  <div class="body">
+
+    <!-- SIDEBAR P1 -->
+    <aside class="sidebar">
+      <div class="sidebar-photo">Photo</div>
+
+      <div class="sb-badge"><i class="fa fa-user" style="margin-right:5px;"></i>About Me</div>
+      <p class="ame-text">
+        I am curious and self-motivated to experiment and innovate.
+        Creative from an early age - I was drawn to software engineering whare ideas become reality with a few lines of code and one or two cups of coffee.
+        However my skills don't vanish when i close the IDE - I have an artistic side and I am not afraid to get my hands dirty
+        - from building a youtube channel to working in the event and wedding industry and even sales gigs
+        , throughoughout the years I have built a wide skillset making me adaptable to any situation.
+        That of course does not mean I still don't have a lot to learn - I am exited to work on my career and proffesional experience.
+      </p>
+
+      <div class="sb-badge"><i class="fa fa-address-card" style="margin-right:5px;"></i>Contact</div>
+
+      <div class="contact-item">
+        <i class="fa fa-map-marker-alt"></i><span>Varna, Bulgaria</span>
+      </div>
+      <div class="contact-item">
+        <i class="fa fa-envelope"></i><span>kamen.karchev03@gmail.com</span>
+      </div>
+      <div class="contact-item">
+        <i class="fa fa-phone"></i><span>+359 ** *** ***</span>
+      </div>
+      <div class="contact-item">
+        <i class="fa fa-globe"></i><a href="https://kamenkarchev.com">kamenkarchev.com</a>
+      </div>
+      <div class="contact-item">
+        <i class="fab fa-linkedin"></i><a href="https://www.linkedin.com/in/kamen-karchev-4014a519a">https://www.linkedin.com/in/kamen-karchev</a>
+      </div>
+      <div class="contact-item">
+        <i class="fab fa-github"></i><a href="https://github.com/KamenKarchev">https://github.com/KamenKarchev</a>
+      </div>
+
+      <div class="sb-badge" style="margin-top:16px;"><i class="fa fa-code" style="margin-right:5px;"></i>Technical Skills</div>
+      <div style="margin-top:6px;">
+        <div class="skill-row"><div class="skill-label">Java / Spring Boot / Hibernate</div><div class="skill-track"><div class="skill-fill" style="width:90%;"></div></div></div>
+        <div class="skill-row"><div class="skill-label">C# / .NET / Desktop & Web</div><div class="skill-track"><div class="skill-fill" style="width:90%;"></div></div></div>
+        <div class="skill-row"><div class="skill-label">Kotlin / Android SDK</div><div class="skill-track"><div class="skill-fill" style="width:80%;"></div></div></div>
+        <div class="skill-row"><div class="skill-label">Elixir / Phoenix</div><div class="skill-track"><div class="skill-fill" style="width:80%;"></div></div></div>
+      </div>
+    </aside>
+
+    <!-- MAIN P1 -->
+    <main class="main">
+      <div class="sec-title">Experience</div>
+      <div class="timeline">
+
+        <div class="tl-entry">
+          <div class="entry-head">
+            <div class="entry-title">Getting Started in a Software Company</div>
+            <span class="year-pill">Jul 2022 - Feb 2023</span>
+          </div>
+          <div class="tl-org"><i class="fa fa-building" style="margin-right:5px;font-size:10px;"></i>Quanterall</div>
+          <ul class="tl-bullets">
+            <li>
+                Began as part of my schools mandatory work practice and continued as I got accepted into the Quanteralls internship program.
+            </li>
+            <li>
+              Made a Mobile App with Kotlin, working with a real API.
+              </li>
+              <li>
+                Internship started with Erlang, 
+                Functional Programming Paradigm, Data Structures and even a little Neuro Science. 
+              </li>
+              <li>
+                Chose to implemnt a Graph with DFT and BFT for my Erlang data structure assignment - I wanted to challenge myself.
+              </li>
+              <li>
+                Focused on Elixir for backend development as I continued. 
+            </li>
+                <li>
+                Implemented the backend logic for a messaging app - inspired by Discord and its Elixir-based backend.
+              </li>
+          </ul>
+        </div>
+
+        <div class="tl-entry">
+          <div class="entry-head">
+            <div class="entry-title">Network Infrastructure Intern</div>
+            <span class="year-pill">May 2025</span>
+          </div>
+          <div class="tl-org"><i class="fa fa-network-wired" style="margin-right:5px;font-size:10px;"></i>Asparuhovo Net &middot; Internet Service Provider</div>
+          <ul class="tl-bullets">
+            <li>
+                Understood how ISP infrastructure works in practice.
+            </li>
+            <li>Reinforcing knowledge of network protocols and hardware.</li>
+            <li>Experienced day-to-day ISP work, from customer issue to the broader service environment behind internet delivery.</li>
+            <li>Modelled a business network in Cisco Packet Tracer.</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="subsec"><i class="fa fa-plane" style="margin-right:6px;"></i>International Experience</div>
+      <div class="timeline">
+
+        <div class="tl-entry tl-sub">
+          <div class="entry-head">
+            <div class="entry-title">Experiencing work & life in the USA</div>
+            <span class="year-pill">Jun-Oct 2024</span>
+          </div>
+          <div class="tl-org"><span style="display:inline-flex;align-items:center;margin-right:5px;font-size:10px;" aria-hidden="true"><i class="fa-solid fa-ring"></i><i class="fa-solid fa-ring" style="margin-left:-7px;opacity:.85;"></i></span>Vermont Tent Company &middot; Event & Wedding Industry</div>
+          <ul class="tl-bullets">
+            <li>
+                Collaborated with people from different cultures and backgrounds while communicating in English.
+            </li>
+            <li>
+Learned ro be adaptable, resourceful and independent.
+            </li>
+          </ul>
+        </div>
+
+        <div class="tl-entry tl-sub">
+          <div class="entry-head">
+            <div class="entry-title">Growing Professionally and Personally</div>
+            <span class="year-pill">Jun-Oct 2025</span>
+          </div>
+          <div class="tl-org"><span style="display:inline-flex;align-items:center;margin-right:5px;font-size:10px;" aria-hidden="true"><i class="fa-solid fa-ring"></i><i class="fa-solid fa-ring" style="margin-left:-7px;opacity:.85;"></i></span>Vermont Tent Company &middot; Event & Wedding Industry</div>
+          <ul class="tl-bullets">
+            <li>
+              Took on greater responsibilities and teaching new people the job.
+            </li>
+            <li>
+               Mentoring showed me how important it is to be accountable. I began striveing for greater emphaty, self-control and communication skills.
+            </li>
+          <!-- <li>
+            Takled online sales as a side gig - improving my confidence and negotiation skills.
+          </li> -->
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="sec-title">Education</div>
+      <div class="proj-card">
+        <div class="entry-head">
+          <div class="entry-title">Bachelor's in Software &amp; Internet Technologies</div>
+          <span class="year-pill">2022 – 2026</span>
+        </div>
+        <div class="tl-org"><i class="fa fa-graduation-cap" style="margin-right:5px;font-size:10px;"></i>Technical University of Varna &middot; Expected graduation June 2026</div>
+        <ul class="proj-bullets">
+          <li>4-year curriculum thoroughly covering the foundations of modern software engineering, from programming and systems to architecture, security, and project delivery.</li>
+          <li>Explored: Algorithms, OOP, Databases, Computer Networks, OS, Web Technologies, Software Architecture, Design Patterns, Information Security, Project Management and more.</li>
+        </ul>
+      </div>
+    </main>
+  </div><!-- /body -->
+
+  <!-- <footer class="cv-footer">
+    <span><i class="fa fa-globe"></i><a href="https://kamenkarchev.com">kamenkarchev.com</a></span>
+    <span><i class="fab fa-github"></i><a href="https://github.com/KamenKarchev">https://github.com/KamenKarchev</a></span>
+    <span><i class="fab fa-linkedin"></i><a href="https://www.linkedin.com/in/kamen-karchev-4014a519a">https://www.linkedin.com/in/kamen-karchev</a></span>
+  </footer> -->
+</div>
+<!-- /page 1 -->
+
+
+<!-- ═══════════════════════════ PAGE 2 ═══════════════════════════ -->
+<div class="page">
+
+
+  <div class="body">
+
+    <!-- SIDEBAR P2 -->
+    <aside class="sidebar">
+        <div style="margin-top:6px;">
+            <div class="skill-row"><div class="skill-label">React / JavaScript / TypeScript</div><div class="skill-track"><div class="skill-fill" style="width:70%;"></div></div></div>
+            <div class="skill-row"><div class="skill-label">C++</div><div class="skill-track"><div class="skill-fill" style="width:50%;"></div></div></div>
+            <div class="skill-row"><div class="skill-label">Web Design</div><div class="skill-track"><div class="skill-fill" style="width:50%;"></div></div></div>
+          </div>
+
+
+      <div class="sb-badge"><i class="fa fa-comment" style="margin-right:5px;"></i>Soft Skills</div>
+      <ul class="pill-list">
+        <li>Team player</li>
+        <li>Empathetic</li>
+        <li>Open-minded</li>
+        <li>Analytical thinker</li>
+        <li>Self-motivated</li>
+        <li>Accountable</li>
+        <li>Adaptable</li>
+        <li>Creative</li>
+        <li>Communicative</li>
+      </ul>
+
+      <div class="sb-badge" style="margin-top:16px;"><i class="fa fa-language" style="margin-right:5px;"></i>Languages</div>
+      <div style="margin-top:4px;">
+        <div class="skill-row">
+          <div class="skill-label">Bulgarian &nbsp;<span style="font-weight:300;font-size:10px;color:var(--sidebar-muted);">Native</span></div>
+          <div class="skill-track"><div class="skill-fill" style="width:100%;"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-label">English &nbsp;<span style="font-weight:300;font-size:10px;color:var(--sidebar-muted);">Fluent — Professional</span></div>
+          <div class="skill-track"><div class="skill-fill" style="width:88%;"></div></div>
+        </div>
+      </div>
+
+      <div class="sb-badge" style="margin-top:16px;"><i class="fa fa-tools" style="margin-right:5px;"></i>Also Worked With</div>
+      <ul class="pill-list">
+        <li>Erlang</li>
+        <li>Python</li>
+        <li>Oban</li>
+        <li>Prometheus</li>
+        <li>Grafana</li>
+        <li>OAuth 2.0 / JWT</li>
+        <li>REST API Design</li>
+        <li>Web Scraping</li>
+        <li>LLM integration</li>
+        <li>Photoshop</li>
+        <li>Video Editing</li>
+      </ul>
+
+      <div class="sb-badge" style="margin-top:16px;"><i class="fa fa-star" style="margin-right:5px;"></i>Interests</div>
+      <ul class="pill-list" style="margin-top:6px;">
+        <li>Artificial Intelligence</li>
+        <li>Business</li>
+        <li>Content creation</li>
+        <li>Productivity & Optimization</li>
+        <li>New Technology</li>
+        <li>Fitness & Health</li>
+        <li>Psychology</li>
+        <li>Eastern Philosophy</li>
+        <li>Reading & Learning</li>
+        <li>Magic Tricks</li>
+        <li>Card Games</li>
+      </ul>
+
+    </aside>
+
+    <!-- MAIN P2 -->
+    <main class="main">
+
+        <div class="proj-card">
+          <div class="entry-head">
+            <div class="entry-title">Vocational High School of Electrical Engineering</div>
+            <span class="year-pill">2017 – 2022</span>
+          </div>
+          <div class="tl-org"><i class="fa fa-university" style="margin-right:5px;font-size:10px;"></i>Varna, Bulgaria</div>
+          <ul class="proj-bullets">
+            <li>Professional Qualification Certificate <strong>GPA: 3.58</strong></li>
+            <li>High School Diploma <strong>GPA: 3.36</strong></li>
+            <li>5-year curriculum focusing on OOP and software development basics.</li>
+            <li>Explored: C#, Algorithms, Data Structures, .NET, Windows Forms, Xamarin, Blazor, Web Development, mySQL, Network Protocols, Operating Systems, and more.</li>
+          </ul>
+        </div>
+
+
+      <div class="sec-title" style="margin-top:16px;">Projects</div>
+
+      <div class="proj-card">
+        <div class="entry-head">
+          <div class="entry-title">Research Paper on Cybersecurity Team Management and Crisis Prevention</div>
+          <span class="year-pill">April 2025</span>
+        </div>
+        <div class="proj-subtitle">Successful Team Management and Its Role in Preventing Crisis in Cybersecurity</div>
+        <ul class="proj-bullets">
+          <li>Co-authored and presented a paper at the TU-Varna Student Science Session.</li>
+          <li>Covered Scrum, SOC / CSIRT operations, and NIST / ISO response frameworks through real case studies.</li>
+        </ul>
+      </div>
+      
+      <div class="proj-card">
+        <div class="entry-head">
+          <div class="entry-title">Scalable User Management Service API on Phoenix / Elixir</div>
+          <span class="year-pill">2025 – 2026</span>
+        </div>
+        <div class="proj-subtitle">DopeyUserAPI</div>
+        <ul class="proj-bullets">
+          <li>Built a backend service for registration, login, email verification, password reset, and social authentication.</li>
+          <li>Implemented with Elixir, Phoenix, PostgreSQL, Docker, Oban, Prometheus, and Grafana.</li>
+        </ul>
+      </div>
+      
+      <div class="proj-card">
+        <div class="entry-head">
+          <div class="entry-title">Role-Based Winery Operations Platform</div>
+          <span class="year-pill">2024 – 2025</span>
+        </div>
+        <div class="proj-subtitle">Team Project</div>
+        <ul class="proj-bullets">
+          <li>Built a multi-role platform for orders, inventory, task management, and notifications.</li>
+          <li>Developed in Java as a university team project focused on software architecture and design patterns.</li>
+        </ul>
+      </div>
+      
+      <div class="proj-card">
+        <div class="entry-head">
+          <div class="entry-title">AI-Assisted Product Discovery Web Crawler</div>
+          <span class="year-pill">2024 – present</span>
+        </div>
+        <div class="proj-subtitle">ShopAssist</div>
+        <ul class="proj-bullets">
+          <li>Built a product search tool that collects listings and filters them by user preferences.</li>
+          <li>Uses web scraping, ASP.NET, and AI-based ranking for product comparison.</li>
+        </ul>
+      </div>
+      <div class="sec-title">Certificates</div>
+      <ul class="proj-bullets">
+        <li><a href="https://kamenkarchev.com/documents/Student_Science_Session_Certificate.pdf">Student Science Session Certificate</a></li>
+        <li><a href="https://kamenkarchev.com/documents/Professional_Qualification_Certificate">Professional Qualification Certificate</a></li>
+        <li><a href="https://kamenkarchev.com/documents/High_School_Diploma">High School Diploma</a></li>
+      </ul>
+    </main>
+  </div>
+
+  <footer class="cv-footer">
+    <span><i class="fa fa-globe"></i><a href="https://kamenkarchev.com">kamenkarchev.com</a></span>
+    <span><i class="fab fa-github"></i><a href="https://github.com/KamenKarchev">https://github.com/KamenKarchev</a></span>
+    <span><i class="fab fa-linkedin"></i><a href="https://www.linkedin.com/in/kamen-karchev-4014a519a">https://www.linkedin.com/in/kamen-karchev</a></span>
+  </footer>
+
+</div><!-- /page 2 -->
+
+</body>
+</html>

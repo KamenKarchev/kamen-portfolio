@@ -1,7 +1,8 @@
-import { NAV_LINKS } from '../data/content'
+import { Link } from 'react-router-dom'
 import LightSwitch from './LightSwitch'
+import LanguageSwitch from './LanguageSwitch'
 
-export default function Nav({ theme, toggleTheme }) {
+export default function Nav({ theme, toggleTheme, language, onLanguageChange, copy, languageCopy }) {
   return (
     <header className="nav">
       <div className="wrap nav-inner">
@@ -13,14 +14,27 @@ export default function Nav({ theme, toggleTheme }) {
             </svg>
           </div>
           <div>
-            <strong>Kamen Karchev</strong>
-            <span>Portfolio — editorial</span>
+            <strong>{copy.brandName}</strong>
+            <span>{copy.brandTagline}</span>
           </div>
         </div>
         <nav className="nav-links" aria-label="Primary">
-          {NAV_LINKS.map(l => <a key={l.href} href={l.href}>{l.label}</a>)}
+          {copy.links.map(l =>
+            l.to != null ? (
+              <Link key={l.to + l.label} to={l.to}>{l.label}</Link>
+            ) : (
+              <a key={l.href} href={l.href}>{l.label}</a>
+            ),
+          )}
         </nav>
-        <LightSwitch theme={theme} toggleTheme={toggleTheme} />
+        <div className="nav-controls">
+          <LanguageSwitch
+            language={language}
+            onLanguageChange={onLanguageChange}
+            copy={languageCopy}
+          />
+          <LightSwitch theme={theme} toggleTheme={toggleTheme} />
+        </div>
       </div>
     </header>
   )

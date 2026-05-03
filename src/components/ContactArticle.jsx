@@ -1,5 +1,8 @@
-import { motion } from 'motion/react'
-import { CONTACT } from '../data/content'
+import { useEffect, useRef, useState } from 'react'
+import { motion as Motion } from 'motion/react'
+
+/* Must match .page width in public/cv-preview.html (210mm ≈ 794px) */
+const CV_NATURAL_W = 794
 
 /* ── Brand icons ── */
 const LinkedInIcon = () => (
@@ -31,8 +34,6 @@ const ICONS = {
   linkedin: LinkedInIcon,
   github: GitHubIcon,
   email: EmailIcon,
-  cv: DocumentIcon,
-  resume: DocumentIcon,
 }
 
 const cardVariants = {
@@ -43,35 +44,54 @@ const cardVariants = {
   }),
 }
 
-export default function ContactArticle() {
+export default function ContactArticle({ copy }) {
+  const clipRef = useRef(null)
+  const [layout, setLayout] = useState(() => ({
+    scale: 1,
+    iframeH: 900,
+  }))
+
+  useEffect(() => {
+    const el = clipRef.current
+    if (!el) return
+    const update = () => {
+      const w = el.offsetWidth
+      const h = el.offsetHeight
+      if (w < 1 || h < 1) return
+      const scale = w / CV_NATURAL_W
+      setLayout({ scale, iframeH: h / scale })
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
   return (
-    <motion.section
-      className="glass"
+    <Motion.section
+      className="glass contact-article"
       initial={{ opacity: 0, y: 36 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: .7, ease: [.16, 1, .3, 1] }}
       viewport={{ once: true, amount: .1 }}
     >
-      <div className="article-pad">
+      <div className="article-pad article-pad--contact">
         {/* Welcome message */}
         <div className="contact-welcome">
-          <span className="smallcaps">Back page</span>
-          <h3 className="article-title">Open to internships, strong teams, and meaningful technical problems.</h3>
-          <p className="article-deck">
-            This site is built to work now as a university portfolio and later as a
-            sharper internship-facing profile with stronger project depth and a refined
-            video introduction. Reach out through any of the channels below.
-          </p>
+          <span className="smallcaps">{copy.eyebrow}</span>
+          <h3 className="article-title">{copy.title}</h3>
+          <p className="article-deck">{copy.deck}</p>
         </div>
 
         {/* Branded profile cards */}
         <div className="profile-cards">
-          {CONTACT.map((item, i) => {
+          {copy.items.map((item, i) => {
             const Icon = ICONS[item.brand] || DocumentIcon
             return (
-              <motion.a
+              <Motion.a
                 key={item.label}
                 className="profile-card"
+                data-brand={item.brand}
                 href={item.href}
                 target={item.external ? '_blank' : undefined}
                 rel={item.external ? 'noreferrer' : undefined}
@@ -93,11 +113,54 @@ export default function ContactArticle() {
                   <span className="profile-card-text">{item.text}</span>
                   <span className="profile-card-desc">{item.description}</span>
                 </div>
-              </motion.a>
+              </Motion.a>
             )
           })}
         </div>
+
+        <div className="cv-preview-pane-wrap">
+          <div className="cv-preview-pane-container">
+            <Motion.a
+              href={copy.cvHref}
+              className="cv-preview-pane"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Open full CV on kamenkarchev.com"
+              whileHover={{ y: -6, scale: 1.012 }}
+              whileTap={{ scale: 0.99 }}
+              transition={{ duration: .22, ease: [.16, 1, .3, 1] }}
+            >
+              <div className="cv-preview-pane__scaler-wrap">
+                <div ref={clipRef} className="cv-preview-pane__scale-clip">
+                  <iframe
+                    className="cv-preview-pane__iframe"
+                    src="/cv-preview.html"
+                    scrolling="no"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    title=""
+                    style={{
+                      width: CV_NATURAL_W,
+                      height: layout.iframeH,
+                      transform: `scale(${layout.scale})`,
+                      transformOrigin: 'top left',
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="cv-preview-pane__fade" aria-hidden="true" />
+              <div className="cv-preview-pane__cta" aria-hidden="true">
+                <div className="cv-preview-pane__cta-icon"><DocumentIcon /></div>
+                <div className="cv-preview-pane__cta-body">
+                  <span className="cv-preview-pane__cta-label">CV</span>
+                  <span className="cv-preview-pane__cta-text">Click to view my full CV</span>
+                  <span className="cv-preview-pane__cta-desc">kamenkarchev.com/cv</span>
+                </div>
+              </div>
+            </Motion.a>
+          </div>
+        </div>
       </div>
-    </motion.section>
+    </Motion.section>
   )
 }
