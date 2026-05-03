@@ -1,6 +1,6 @@
 import Masthead from '../components/Masthead'
 import SectionHead from '../components/SectionHead'
-import NemotryArticle from '../components/NemotryArticle'
+import NemotryArticle from '../components/NemotryDebug'
 import NewspaperPage from '../components/NewspaperPage'
 import Footer from '../components/Footer'
 
