@@ -545,7 +545,7 @@ class SpaceAllocator {
     // ── fix: pass raw w and h ────────────────────────────────────────────────
     // Re-filter properly using raw dimensions.
     const candidates = (() => {
-      const filtered = allCandidates.filter((c) => {
+      const filtered = ratioFiltered.filter((c) => {
         if (c.type === 'real') {
           const seg = this.space.segments.find((s) => s.id === c.id);
           if (!seg) return false;
@@ -559,7 +559,7 @@ class SpaceAllocator {
         const mb = segs.map((s) => s.box).reduce((acc, b) => acc.merge(b));
         return withinRatioTolerance(mb.width, mb.height, this.parentRatio);
       });
-      return filtered.length > 0 ? filtered : allCandidates;
+      return filtered.length > 0 ? filtered : ratioFiltered;
     })();
     // ────────────────────────────────────────────────────────────────────────
 
