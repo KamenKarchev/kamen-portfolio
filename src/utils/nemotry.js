@@ -43,10 +43,9 @@ import { EN_PROJECTS } from '../data/content.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ASPECT        = 1.5;   // width : height ratio for cards
-const MARGIN_WINDOW = 0.1;   // 10% area match tolerance
-const RECT_EPSILON  = 1e-6;  // float tolerance
-const RATIO_TOLERANCE = 0.5; // ±50%: candidate ratio must be in [parentRatio*0.5, parentRatio*2.0]
+const MARGIN_WINDOW   = 0.1;   // 10% area match tolerance
+const RECT_EPSILON    = 1e-6;  // float tolerance
+const RATIO_TOLERANCE = 0.5;   // ±50%: band is [parentRatio*0.5, parentRatio*2.0]
 
 // ─── Geometry primitives ─────────────────────────────────────────────────────
 
@@ -308,15 +307,9 @@ function applyCredit(credit, actual, desired) {
 }
 
 /**
- * Returns true if the candidate's aspect ratio is within ±RATIO_TOLERANCE of
- * the parent ratio.
- *
- * "50% accuracy" means the acceptable band is:
- *   [parentRatio * (1 - RATIO_TOLERANCE), parentRatio * (1 + RATIO_TOLERANCE) * 2]
- * which simplifies to [parentRatio * 0.5, parentRatio * 2.0].
- *
- * Both the candidate ratio and its inverse are tested so that a tall candidate
- * is not unfairly rejected when the parent is wide (and vice versa).
+ * Returns true if the candidate's aspect ratio is within ±50% of parentRatio.
+ * Band: [parentRatio * 0.5, parentRatio * 2.0].
+ * Both orientations (normal + flipped) are checked.
  *
  * @param {number} segW
  * @param {number} segH
@@ -325,46 +318,57 @@ function applyCredit(credit, actual, desired) {
  */
 function withinRatioTolerance(segW, segH, parentRatio) {
   if (segH === 0 || segW === 0) return false;
-  const ratio    = segW / segH;
-  const lo       = parentRatio * RATIO_TOLERANCE;       // parentRatio * 0.5
-  const hi       = parentRatio / RATIO_TOLERANCE;       // parentRatio * 2.0
-  // also accept the flipped orientation
-  const loFlip   = (1 / parentRatio) * RATIO_TOLERANCE;
-  const hiFlip   = (1 / parentRatio) / RATIO_TOLERANCE;
+  const ratio  = segW / segH;
+  const lo     = parentRatio * RATIO_TOLERANCE;       // parentRatio * 0.5
+  const hi     = parentRatio / RATIO_TOLERANCE;       // parentRatio * 2.0
+  const loFlip = (1 / parentRatio) * RATIO_TOLERANCE;
+  const hiFlip = (1 / parentRatio) / RATIO_TOLERANCE;
   return (ratio >= lo && ratio <= hi) || (ratio >= loFlip && ratio <= hiFlip);
 }
 
-/** SELL (green) overlay inside card */
-function makeSellOverlay(card, diffMagnitude) {
-  const targetArea = diffMagnitude;
-  if (targetArea <= 0) return undefined;
+/**
+ * Compute w and h for a given area targeting a desired aspect ratio (w/h).
+ * Clamps to the segment's actual bounds as a fallback.
+ *
+ * @param {number} area
+ * @param {number} targetRatio  desired w / h
+ * @param {number} maxW
+ * @param {number} maxH
+ * @returns {{ w: number; h: number }}
+ */
+function shapeRect(area, targetRatio, maxW, maxH) {
+  // Primary: use parent ratio
+  let w = Math.sqrt(area * targetRatio);   // area = w*(w/targetRatio) → w² = area*targetRatio
+  let h = w / targetRatio;
 
-  let w = Math.sqrt(targetArea / ASPECT);
-  let h = w * ASPECT;
+  // Fallback: clamp to bounds and re-derive the other dimension
+  if (w > maxW || h > maxH) {
+    w = Math.min(maxW, Math.sqrt(area * targetRatio));
+    h = w / targetRatio;
+    if (h > maxH) {
+      h = maxH;
+      w = Math.min(maxW, area / h);
+    }
+  }
 
-  w = Math.min(w, card.width);
-  h = Math.min(h, card.height);
+  return { w, h };
+}
 
-  const x = card.startx + (card.width - w) / 2;
+/** SELL (green) overlay inside card — shaped toward parentRatio */
+function makeSellOverlay(card, diffMagnitude, parentRatio) {
+  if (diffMagnitude <= 0) return undefined;
+  const { w, h } = shapeRect(diffMagnitude, parentRatio, card.width, card.height);
+  const x = card.startx + (card.width  - w) / 2;
   const y = card.starty + (card.height - h) / 2;
-
   return { type: 'sell', x, y, width: w, height: h };
 }
 
-/** BUY (red) overlay — same centering logic as SELL */
-function makeBuyOverlay(card, diffMagnitude) {
-  const targetArea = diffMagnitude;
-  if (targetArea <= 0) return undefined;
-
-  let w = Math.sqrt(targetArea / ASPECT);
-  let h = w * ASPECT;
-
-  w = Math.min(w, card.width);
-  h = Math.min(h, card.height);
-
-  const x = card.startx + (card.width - w) / 2;
+/** BUY (red) overlay — shaped toward parentRatio */
+function makeBuyOverlay(card, diffMagnitude, parentRatio) {
+  if (diffMagnitude <= 0) return undefined;
+  const { w, h } = shapeRect(diffMagnitude, parentRatio, card.width, card.height);
+  const x = card.startx + (card.width  - w) / 2;
   const y = card.starty + (card.height - h) / 2;
-
   return { type: 'buy', x, y, width: w, height: h };
 }
 
@@ -383,7 +387,7 @@ class SpaceAllocator {
     this.marginWindow    = MARGIN_WINDOW;
     this.minaProjectArea = 0;
 
-    // parent ratio — derived once from the canvas dimensions
+    // parentRatio drives ALL shaping and cut decisions — no hardcoded ASPECT
     this.parentRatio = space.getBaseWidth() / (space.getBaseHeight() || 1);
 
     /** @type {Map<number, string[]>} */
@@ -484,30 +488,9 @@ class SpaceAllocator {
   }
 
   /**
-   * Returns the aspect ratio [w/h] of a candidate's geometry.
-   * For potentials, uses the merged bounding box.
-   * @param {Candidate} candidate
-   * @returns {number}
-   */
-  _candidateRatio(candidate) {
-    if (candidate.type === 'real') {
-      const seg = this.space.segments.find((s) => s.id === candidate.id);
-      if (!seg) return 1;
-      return seg.getWidth() / (seg.getHeight() || 1);
-    }
-    // potential: compute merged box w/h
-    const segs = candidate.segments ?? this.space.getSegmentsByIds(
-      this.potentialIds.get(candidate.id) ?? []
-    );
-    if (!segs.length) return 1;
-    const merged = segs.map((s) => s.box).reduce((acc, b) => acc.merge(b));
-    return merged.width / (merged.height || 1);
-  }
-
-  /**
    * Builds the full candidate list, then filters by parent-ratio tolerance.
-   * Falls back to the unfiltered list if no candidate passes the ratio check,
-   * so allocation never gets stuck.
+   * Falls back to the unfiltered list if no candidate passes the ratio check
+   * so allocation is never starved.
    *
    * @param {ProjectBlueprint} blueprint
    * @returns {{ bigger: Candidate | null; smaller: Candidate[] }}
@@ -531,39 +514,26 @@ class SpaceAllocator {
       allCandidates.push({ id: pid, area, type: 'potential', segments: segs });
     }
 
-    // ── ratio filter ────────────────────────────────────────────────────────
-    // Keep only candidates whose aspect ratio falls within ±50% of the parent.
-    // If none pass, use the full list so the allocator is never starved.
-    const ratioFiltered = allCandidates.filter((c) => {
-      const ratio = this._candidateRatio(c);
-      const h     = ratio > 0 ? /* already w/h */ 1 : 1;
-      return withinRatioTolerance(ratio, h, this.parentRatio);
-      // withinRatioTolerance expects (segW, segH, parentRatio)
-      // but _candidateRatio already gives w/h, so rewrite the call:
+    // ── ratio filter ─────────────────────────────────────────────────────────
+    // Accept candidates whose W/H is within ±50% of the parent canvas ratio.
+    // Fallback to allCandidates if none pass (never starve the allocator).
+    const filtered = allCandidates.filter((c) => {
+      if (c.type === 'real') {
+        const seg = this.space.segments.find((s) => s.id === c.id);
+        if (!seg) return false;
+        return withinRatioTolerance(seg.getWidth(), seg.getHeight(), this.parentRatio);
+      }
+      const segs = c.segments ?? this.space.getSegmentsByIds(
+        this.potentialIds.get(c.id) ?? []
+      );
+      if (!segs.length) return false;
+      const mb = segs.map((s) => s.box).reduce((acc, b) => acc.merge(b));
+      return withinRatioTolerance(mb.width, mb.height, this.parentRatio);
     });
 
-    // ── fix: pass raw w and h ────────────────────────────────────────────────
-    // Re-filter properly using raw dimensions.
-    const candidates = (() => {
-      const filtered = ratioFiltered.filter((c) => {
-        if (c.type === 'real') {
-          const seg = this.space.segments.find((s) => s.id === c.id);
-          if (!seg) return false;
-          return withinRatioTolerance(seg.getWidth(), seg.getHeight(), this.parentRatio);
-        }
-        // potential
-        const segs = c.segments ?? this.space.getSegmentsByIds(
-          this.potentialIds.get(c.id) ?? []
-        );
-        if (!segs.length) return false;
-        const mb = segs.map((s) => s.box).reduce((acc, b) => acc.merge(b));
-        return withinRatioTolerance(mb.width, mb.height, this.parentRatio);
-      });
-      return filtered.length > 0 ? filtered : ratioFiltered;
-    })();
-    // ────────────────────────────────────────────────────────────────────────
+    const candidates = filtered.length > 0 ? filtered : allCandidates;
+    // ─────────────────────────────────────────────────────────────────────────
 
-    // perfect area match within margin
     const perfect = candidates.find((c) => Math.abs(c.area - projectArea) <= margin);
     if (perfect) return { bigger: perfect, smaller: [] };
 
@@ -581,24 +551,23 @@ class SpaceAllocator {
     return { bigger: bestBigger, smaller };
   }
 
+  /**
+   * Shape and place a card inside `segment` using the parent canvas ratio.
+   * @param {SpaceSegment} segment
+   * @param {ProjectBlueprint} blueprint
+   * @returns {ProjectCard}
+   */
   _allocate(segment, blueprint) {
     this.allocatedIds.add(segment.id);
     this._removeFromMarket(segment.id);
 
-    const start = segment.getStart();
-    const area  = segment.getArea();
-
-    let w = Math.sqrt(area / ASPECT);
-    let h = w * ASPECT;
-
-    if (w > segment.getWidth() || h > segment.getHeight()) {
-      w = segment.getWidth();
-      h = Math.min(area / w, segment.getHeight());
-    }
+    const start        = segment.getStart();
+    const area         = segment.getArea();
+    const { w, h }     = shapeRect(area, this.parentRatio, segment.getWidth(), segment.getHeight());
 
     return {
-      id: blueprint.id,
-      width: w,
+      id:     blueprint.id,
+      width:  w,
       height: h,
       startx: start.x,
       starty: start.y,
@@ -623,16 +592,19 @@ class SpaceAllocator {
     return merged;
   }
 
+  /**
+   * Compute the cut point (x, y) inside `segment` for `blueprint.area`,
+   * shaped toward the parent canvas ratio.
+   * @param {SpaceSegment} segment
+   * @param {ProjectBlueprint} blueprint
+   * @returns {{ x: number; y: number }}
+   */
   _computeCutPoint(segment, blueprint) {
     const { xmin, ymin, xmax, ymax } = segment.box;
+    const maxW = xmax - xmin;
+    const maxH = ymax - ymin;
 
-    let w = Math.sqrt(blueprint.area / ASPECT);
-    let h = w * ASPECT;
-
-    if (w > xmax - xmin || h > ymax - ymin) {
-      w = xmax - xmin;
-      h = Math.min(blueprint.area / w, ymax - ymin);
-    }
+    const { w, h } = shapeRect(blueprint.area, this.parentRatio, maxW, maxH);
 
     return { x: xmin + w, y: ymin + h };
   }
@@ -658,8 +630,8 @@ class SpaceAllocator {
     const mode = this.mode;
 
     let overlay;
-    if (diff > 0)      overlay = makeBuyOverlay(card, diff);
-    else if (diff < 0) overlay = makeSellOverlay(card, -diff);
+    if (diff > 0)      overlay = makeBuyOverlay(card, diff, this.parentRatio);
+    else if (diff < 0) overlay = makeSellOverlay(card, -diff, this.parentRatio);
 
     return { card, mode, desiredArea: desired, actualArea: actual, diff, overlay, credit: this.credit };
   }
@@ -704,8 +676,8 @@ class SpaceAllocator {
     const mode = this.mode;
 
     let overlay;
-    if (diff > 0)      overlay = makeBuyOverlay(card, diff);
-    else if (diff < 0) overlay = makeSellOverlay(card, -diff);
+    if (diff > 0)      overlay = makeBuyOverlay(card, diff, this.parentRatio);
+    else if (diff < 0) overlay = makeSellOverlay(card, -diff, this.parentRatio);
 
     return { card, mode, desiredArea: desired, actualArea: actual, diff, overlay, credit: this.credit };
   }
