@@ -57,11 +57,15 @@ export default function ProjectsArticle({ copy }) {
       const finalSkipped = new Set(titleSkipped)
       const nextFlags    = {}
 
+      const visibleOrdered = projects.filter(p => !titleSkipped.has(p.id) && finalRects[p.id])
+      const lastId =
+        visibleOrdered.length > 0 ? visibleOrdered[visibleOrdered.length - 1].id : null
+
       for (const p of projects) {
         if (finalSkipped.has(p.id)) continue
         const r = finalRects[p.id]
         if (!r) continue
-        const fit = measureProjectFitPretext(p, r)
+        const fit = measureProjectFitPretext(p, r, { isLast: p.id === lastId })
         if (!fit.titleFits) {
           finalSkipped.add(p.id)
           continue
