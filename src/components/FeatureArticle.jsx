@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion as Motion } from 'motion/react'
 import { FEATURE_PORTFOLIO_YOUTUBE_ID } from '../data/content'
 import { useTimelineLayout } from '../hooks/useTimelineLayout'
@@ -13,29 +13,65 @@ const item = {
 }
 const stagger = { show: { transition: { staggerChildren: .12 } } }
 
+/** Hide timeline when the article column is too narrow for cards + spine (pad height stays huge on tall pages). */
+const TL_MIN_PAD_W = 300
+const TL_SHOW_PAD_W = 320
+
 function CheckpointCard({ cp }) {
   return (
-    <Motion.div className="checkpoint-card" variants={item}>
-      <div className="checkpoint-img">
-        {cp.image && <img src={cp.image} alt={cp.title} />}
-      </div>
-      <div className="checkpoint-label">
-        <span className="smallcaps">{cp.year}</span>
-        <h4>{cp.title}</h4>
-        <p>{cp.body}</p>
-      </div>
-    </Motion.div>
+    <div className="checkpoint-card-wrap">
+      <Motion.div className="checkpoint-card" variants={item}>
+        <div className="checkpoint-img">
+          {cp.image && <img src={cp.image} alt={cp.title} />}
+        </div>
+        <div className="checkpoint-content">
+          <span className="smallcaps">{cp.year}</span>
+          <h4>{cp.title}</h4>
+          <p>{cp.body}</p>
+        </div>
+      </Motion.div>
+    </div>
   )
 }
 
 export default function FeatureArticle({ copy }) {
-  const timelineWindowRef = useTimelineLayout()
+  const articlePadRef = useRef(null)
+  const [showTimeline, setShowTimeline] = useState(true)
+  const timelineVisibleRef = useRef(true)
+
+  const timelineWindowRef = useTimelineLayout(showTimeline)
+
   const scrollWrapRef = useRef(null)
 
   const isHorizontal = useCallback(
     () => (timelineWindowRef.current?.dataset.tlMode ?? 'horizontal') === 'horizontal',
     [timelineWindowRef],
   )
+
+  useEffect(() => {
+    const el = articlePadRef.current
+    if (!el) return
+
+    const update = () => {
+      const w = el.clientWidth
+      const visible = timelineVisibleRef.current
+      let next = visible
+      if (visible) {
+        if (w < TL_MIN_PAD_W) next = false
+      } else {
+        if (w >= TL_SHOW_PAD_W) next = true
+      }
+      if (next !== visible) {
+        timelineVisibleRef.current = next
+        setShowTimeline(next)
+      }
+    }
+
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    update()
+    return () => ro.disconnect()
+  }, [])
 
   // Natural-pan drag: grab a spine segment, slide content 1:1 like panning cards
   useEffect(() => {
@@ -83,10 +119,11 @@ export default function FeatureArticle({ copy }) {
       wrap.removeEventListener('pointerup', onUp)
       wrap.removeEventListener('pointercancel', onUp)
     }
-  }, [isHorizontal])
+  }, [isHorizontal, showTimeline])
 
   // Wheel hijack: scroll timeline until edge, then let page scroll resume
   useEffect(() => {
+    if (!showTimeline) return
     const winEl = timelineWindowRef.current
     const wrap = scrollWrapRef.current
     if (!winEl || !wrap) return
@@ -106,7 +143,7 @@ export default function FeatureArticle({ copy }) {
 
     winEl.addEventListener('wheel', onWheel, { passive: false })
     return () => winEl.removeEventListener('wheel', onWheel)
-  }, [isHorizontal, timelineWindowRef])
+  }, [isHorizontal, timelineWindowRef, showTimeline])
 
   return (
     <Motion.section
@@ -116,7 +153,7 @@ export default function FeatureArticle({ copy }) {
       transition={{ duration: .7, ease: [.16, 1, .3, 1] }}
       viewport={{ once: true, amount: .1 }}
     >
-      <div className="article-pad feature-article-pad">
+      <div className="article-pad feature-article-pad" ref={articlePadRef}>
         <div className="article-head">
           <span className="smallcaps">{copy.eyebrow}</span>
           <h3 className="article-title">{copy.title}</h3>
@@ -147,40 +184,42 @@ export default function FeatureArticle({ copy }) {
           <p className="feature-body-copy">{copy.body}</p>
         </div>
 
-        <div className="timeline-section">
-          <div className="timeline-section-head">
-            <span className="smallcaps">{copy.timelineEyebrow}</span>
-            <div className="rule" />
-          </div>
+        {showTimeline && (
+          <div className="timeline-section">
+            <div className="timeline-section-head">
+              <span className="smallcaps">{copy.timelineEyebrow}</span>
+              <div className="rule" />
+            </div>
 
-          {/*
-            Single continuous .timeline-spine-line inside .timeline-tracks-inner so left/right
-            span the full row width (not the viewport-clamped scroll-content box).
-          */}
-          <div className="timeline-window" ref={timelineWindowRef}>
-            <div className="timeline-scroll-wrap" ref={scrollWrapRef}>
-              <div className="timeline-scroll-content">
-                <Motion.div
-                  className="timeline-tracks-inner"
-                  variants={stagger}
-                  initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true, amount: .1 }}
-                >
-                  <div className="timeline-spine-line" aria-hidden="true" />
-                  {copy.timeline.map((cp, i) => (
-                    <div className="timeline-track-col" key={i}>
-                      <div className="tl-segment" role="presentation" aria-hidden="true">
-                        <div className="tl-dot" />
+            {/*
+              Single continuous .timeline-spine-line inside .timeline-tracks-inner so left/right
+              span the full row width (not the viewport-clamped scroll-content box).
+            */}
+            <div className="timeline-window" ref={timelineWindowRef}>
+              <div className="timeline-scroll-wrap" ref={scrollWrapRef}>
+                <div className="timeline-scroll-content">
+                  <Motion.div
+                    className="timeline-tracks-inner"
+                    variants={stagger}
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={{ once: true, amount: .1 }}
+                  >
+                    <div className="timeline-spine-line" aria-hidden="true" />
+                    {copy.timeline.map((cp, i) => (
+                      <div className="timeline-track-col" key={i}>
+                        <div className="tl-segment" role="presentation" aria-hidden="true">
+                          <div className="tl-dot" />
+                        </div>
+                        <CheckpointCard cp={cp} />
                       </div>
-                      <CheckpointCard cp={cp} />
-                    </div>
-                  ))}
-                </Motion.div>
+                    ))}
+                  </Motion.div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </Motion.section>
   )

@@ -105,7 +105,7 @@ body::before {
 .hero-copy p,
 .article-deck,
 .feature-body-copy,
-.checkpoint-label p,
+.checkpoint-content p,
 .masthead-meta,
 .masthead-bottom,
 .footer,
@@ -133,7 +133,7 @@ body::before {
 .cv-preview-pane__cta-label,
 .cv-preview-pane__cta-text,
 .cv-preview-pane__cta-desc,
-.checkpoint-label .smallcaps,
+.checkpoint-content .smallcaps,
 code,
 kbd,
 samp,
@@ -434,25 +434,83 @@ img { display: block; max-width: 100%; }
   z-index: 1;
 }
 .checkpoint-card {
+  container-type: size;
+  container-name: checkpoint;
   border-radius: 18px;
-  border: 1px solid var(--line);
+  border: 2px solid var(--primary-soft);
   background: var(--paper-2);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   height: 100%;
 }
+.checkpoint-card-wrap {
+  padding: 8px;
+  height: 100%;
+  width: 100%;
+}
+/* Default = horizontal timeline: portrait card, image = 50% height */
 .checkpoint-img {
-  height: 100px;
+  flex: 0 0 50%;
+  min-height: 0;
   flex-shrink: 0;
   background: var(--image-surface);
   overflow: hidden;
 }
 .checkpoint-img img { width: 100%; height: 100%; object-fit: cover; }
-.checkpoint-label { padding: .8rem 1rem 1rem; flex: 1; display: flex; flex-direction: column; }
-.checkpoint-label .smallcaps { display: block; margin-bottom: .35rem; }
-.checkpoint-label h4 { margin: 0 0 .4rem; font-size: .98rem; line-height: 1.22; font-family: var(--font-display); font-weight: 700; letter-spacing: 0.13rem; }
-.checkpoint-label p  { margin: 0; font-size: calc(.86rem + 2.5px); line-height: 1.6; color: var(--muted); flex: 1; }
+.checkpoint-content {
+  flex: 1 1 0;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* Fallback when container query length units are unavailable */
+  font-size: 0.88rem;
+  /* Fluid base scales with card box (cq units from .checkpoint-card); relatives use em below */
+  font-size: clamp(0.68rem, 0.48rem + 1.65cqw + 0.95cqh, 1.06rem);
+  padding: clamp(0.55rem, 0.35rem + 1.4cqh, 1rem) clamp(0.62rem, 0.4rem + 2.2cqw, 1.05rem) clamp(0.62rem, 0.4rem + 1.5cqh, 1.05rem);
+}
+.checkpoint-content .smallcaps {
+  display: block;
+  margin-bottom: clamp(0.2rem, 0.6cqh, 0.42rem);
+  font-size: 0.82em;
+}
+.checkpoint-content h4 {
+  margin: 0 0 clamp(0.28rem, 0.35cqh, 0.48rem);
+  font-size: 1.14em;
+  line-height: 1.2;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: clamp(0.06rem, 0.14cqw + 0.04rem, 0.13rem);
+}
+.checkpoint-content p {
+  margin: 0;
+  font-size: 0.94em;
+  line-height: 1.55;
+  color: var(--muted);
+  flex: 1;
+}
+
+/* Vertical timeline: landscape card — image left, 50% width */
+[data-tl-mode="vertical"] .checkpoint-card {
+  flex-direction: row;
+  align-items: stretch;
+  gap: .65rem;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+[data-tl-mode="vertical"] .checkpoint-img {
+  flex: 0 0 50%;
+  max-width: 50%;
+  min-width: 0;
+}
+[data-tl-mode="vertical"] .checkpoint-content {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: clamp(0.55rem, 0.35rem + 1.4cqh, 1rem) clamp(0.6rem, 0.4rem + 1.5cqw, 0.95rem) clamp(0.55rem, 0.35rem + 1.4cqh, 1rem) 0;
+}
 
 /* ── TIMELINE SCROLL ── */
 /* scroll-wrap: the overflow container sitting inside timeline-window */
@@ -556,6 +614,10 @@ img { display: block; max-width: 100%; }
   min-height: 0;
   width: 100%;
 }
+[data-tl-mode="horizontal"] .checkpoint-img {
+  max-width: none;
+  flex: 0 0 50%;
+}
 
 /* ── Vertical mode ── */
 [data-tl-mode="vertical"] .timeline-scroll-wrap {
@@ -590,11 +652,6 @@ img { display: block; max-width: 100%; }
   margin-bottom: 0;
   margin-right: .45rem;
 }
-[data-tl-mode="vertical"] .checkpoint-card {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-}
 
 /* ── PROJECTS TREEMAP ── */
 .projects-layout {
@@ -606,8 +663,26 @@ img { display: block; max-width: 100%; }
   min-height: 480px;
   padding: 0;
 }
-.projects-item {
+
+/* Treemap slot: outer inset is enforced here — card cannot spill past padding */
+.projects-layout-cell {
   position: absolute;
+  box-sizing: border-box;
+  padding: 2px;
+  display: flex;
+  overflow: hidden;
+}
+.projects-layout-cell .projects-item {
+  position: relative;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.projects-item {
   margin: 0;
   overflow: hidden;
   will-change: transform;
@@ -619,6 +694,9 @@ img { display: block; max-width: 100%; }
   border: 1px solid var(--line);
   background: var(--paper-2);
   box-shadow: var(--shadow);
+}
+.projects-item--last {
+  padding: 8px;
 }
 .lead-project {
   padding: 1.15rem;
@@ -638,20 +716,55 @@ img { display: block; max-width: 100%; }
   background: var(--paper-2);
 }
 .project-visual {
-  /* Height is 35% of the projects-item flex container height.
-     aspect-ratio removed — tile shape is dynamic from the treemap. */
-  flex: 0 0 35%;
-  min-height: 48px;
-  max-height: 200px;
+  /* 40% of main axis — column: height; row: width (see class rules) */
+  flex: 0 0 40%;
   border-radius: 14px;
   border: 1px solid var(--line);
-  background: var(--image-surface);
-  margin-bottom: .85rem;
+  background: #fff;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
 }
-.project-visual img { width: 100%; height: 100%; object-fit: cover; }
+/* Full image visible (no crop); letterboxing matches white assets */
+.project-visual img {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+  flex-shrink: 0;
+}
+
+.project-content {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Portrait tile (h ≥ w): column layout, image on top */
+.projects-item .project-visual {
+  margin-bottom: .85rem;
+}
+
+/* Landscape tile (w > h): row layout, image left, content right */
+.projects-item--landscape {
+  flex-direction: row;
+  gap: 12px;
+}
+.projects-item--landscape .project-visual {
+  max-width: 40%;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
 .project-title { font-family: var(--font-display); font-size: clamp(1.8rem, 3vw, 2.6rem); line-height: .95; letter-spacing: 0.13rem; font-weight: 700; margin: 0 0 .55rem; }
+.projects-layout > div:last-child .project-title { font-size: clamp(1rem, 2vw, 1.5rem); }
 .project-body { font-size: calc(.95rem + 2.5px); line-height: 1.7; color: var(--muted); margin: 0 0 .9rem; }
 .mini-visual {
   height: 120px;

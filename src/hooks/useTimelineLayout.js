@@ -49,11 +49,15 @@ function nextMode(prev, ratio) {
   return ratio < HYST_DOWN ? 'horizontal' : 'vertical'
 }
 
-export function useTimelineLayout() {
+/**
+ * @param {boolean} [enabled=true] When false, observer is torn down (e.g. timeline hidden).
+ */
+export function useTimelineLayout(enabled = true) {
   const ref = useRef(null)
   const modeRef = useRef(null)
 
   useEffect(() => {
+    if (!enabled) return
     const el = ref.current
     if (!el) return
 
@@ -74,7 +78,7 @@ export function useTimelineLayout() {
 
     observer.observe(el)
     return () => observer.disconnect()
-  }, [])
+  }, [enabled])
 
   return ref
 }

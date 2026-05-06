@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { motion as Motion } from 'motion/react'
-import { getProjectCards } from '../utils/projectLayout'
-import { measureProjectFit } from '../utils/measureProjectFit'
+import { getProjectCards } from '../utils/v3'
+import { measureProjectFitPretext } from '../utils/measureProjectFitPretext'
 
 /** @param {{ id: string, startx: number, starty: number, width: number, height: number }[]} cards */
 function cardsToRects(cards) {
@@ -38,7 +38,7 @@ export default function ProjectsArticle({ copy }) {
       for (const p of projects) {
         const r = rects[p.id]
         if (!r) continue
-        const fit = measureProjectFit(p, r)
+        const fit = measureProjectFitPretext(p, r)
         if (!fit.titleFits) titleSkipped.add(p.id)
       }
 
@@ -61,7 +61,7 @@ export default function ProjectsArticle({ copy }) {
         if (finalSkipped.has(p.id)) continue
         const r = finalRects[p.id]
         if (!r) continue
-        const fit = measureProjectFit(p, r)
+        const fit = measureProjectFitPretext(p, r)
         if (!fit.titleFits) {
           finalSkipped.add(p.id)
           continue
@@ -99,15 +99,21 @@ export default function ProjectsArticle({ copy }) {
 
         {/* projects-layout fills remaining flex space (flex: 1 1 0 in CSS) */}
         <div ref={containerRef} className="projects-layout">
-          {projects.map(p => {
+          {(() => {
+            const visible = projects.filter(p => !skipped.has(p.id) && rects[p.id])
+            const lastId  = visible.length > 0 ? visible[visible.length - 1].id : null
+            return projects.map(p => {
             if (skipped.has(p.id)) return null
             const b = rects[p.id]
             if (!b) return null
-            const f = flags[p.id] ?? { showBody: true, showTags: true }
+            const f        = flags[p.id] ?? { showBody: true, showTags: true }
+            const isLast   = p.id === lastId
+            const isLandscape = b.w > b.h
 
             return (
               <div
                 key={p.id}
+                className="projects-layout-cell"
                 style={{
                   position: 'absolute',
                   left:   b.x,
@@ -118,8 +124,11 @@ export default function ProjectsArticle({ copy }) {
                 }}
               >
                 <Motion.article
-                  className="projects-item"
-                  style={{ width: '97.5%', height: '97.5%' }}
+                  className={[
+                    'projects-item',
+                    isLandscape ? 'projects-item--landscape' : '',
+                    isLast      ? 'projects-item--last'      : '',
+                  ].filter(Boolean).join(' ')}
                   whileHover={{ y: -3, boxShadow: 'var(--shadow-lg)' }}
                   transition={{ duration: .2 }}
                 >
@@ -129,21 +138,24 @@ export default function ProjectsArticle({ copy }) {
                     </div>
                   )}
 
-                  <h4 className="project-title">{p.title}</h4>
+                  <div className="project-content">
+                    <h4 className="project-title">{p.title}</h4>
 
-                  {f.showBody && (
-                    <p className="project-body">{p.body}</p>
-                  )}
+                    {f.showBody && (
+                      <p className="project-body">{p.body}</p>
+                    )}
 
-                  {f.showTags && (
-                    <div className="tags">
-                      {p.tags.map(t => <span className="tag" key={t}>{t}</span>)}
-                    </div>
-                  )}
+                    {f.showTags && (
+                      <div className="tags">
+                        {p.tags.map(t => <span className="tag" key={t}>{t}</span>)}
+                      </div>
+                    )}
+                  </div>
                 </Motion.article>
               </div>
             )
-          })}
+            })
+          })()}
         </div>
       </div>
     </Motion.section>
