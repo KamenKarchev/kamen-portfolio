@@ -10,6 +10,9 @@
 :root {
     --font-family: 'Inter', sans-serif;
     --font-size: 12.5px;
+  --page-height-mm: 297mm;
+  --p1-header-mm: 26mm;
+  --p2-footer-mm: 13mm;
   --accent:      #5e548e;
   --accent-dark: #3d3060;
   --accent-mid:  #7b6fa0;
@@ -24,23 +27,33 @@
   --white:       #ffffff;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html{
-  height:100%;
-  background:var(--paper);
-}
 body{
-  min-height:100%;
-  background:var(--paper);
-  overflow:hidden;
+  background:#d5cfe0;
   font-family:var(--font-family);
   color:var(--text);
   font-size:var(--font-size);
 }
+/* Text links */
+a{
+  color:var(--accent-mid);
+  text-decoration:underline;
+  text-underline-offset:2px;
+  text-decoration-thickness:1px;
+  transition:color .15s ease;
+}
+a:visited{
+  color:#9a78b6;
+}
+a:hover{
+  color:var(--accent-dark);
+}
+a:active{
+  color:var(--accent);
+}
 /* ── PAGE SHELL ── */
 .page{
   width:210mm;
-  min-height:297mm;
-  margin:0;
+  height:297mm;
   background:var(--paper);
   box-shadow:0 14px 48px rgba(0,0,0,.22);
   display:flex;
@@ -82,10 +95,25 @@ body{
   flex:1;
 }
 /* ── SIDEBAR ── */
-.sidebar{
+.sidebar1{
   background:var(--sidebar-bg);
   color:var(--sidebar-text);
-  padding:24px 18px 28px;
+  padding:0px 18px 28px;
+  box-sizing: border-box;
+  max-width: 100%;
+  max-height: 100%;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+.sidebar2{
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 auto;
+  overflow: auto;
+  background:var(--sidebar-bg);
+  color:var(--sidebar-text);
+  padding:0px 18px 28px;
 }
 .sidebar-photo{
   width:110px;height:110px;
@@ -96,6 +124,14 @@ body{
   display:flex;align-items:center;justify-content:center;
   color:rgba(255,255,255,.35);
   font-size:11px;text-align:center;
+}
+.sidebar-headshot{
+  width:68mm !important;
+  height:81.5mm !important;
+  object-fit:cover;
+  object-position:center top;
+  display:block;
+  margin:0 auto;
 }
 .sb-badge{
   display:inline-block;
@@ -110,7 +146,7 @@ body{
   border-radius:2px;
 }
 .ame-text {
-font-family: 'Spectral', serif;
+  font-family: 'Spectral', serif;
   font-size: calc(var(--font-size) + 2px);
   font-weight: 300;
   line-height: 1.6;
@@ -142,7 +178,6 @@ font-family: 'Spectral', serif;
   text-decoration:none;
 }
 .contact-item a:hover{color:var(--accent-light);}
-/* skill bars */
 .skill-row{margin-bottom:9px;}
 .skill-label{font-size:calc(var(--font-size));font-weight:600;color:var(--sidebar-text);margin-bottom:3px;}
 .skill-track{background:rgba(255,255,255,.12);border-radius:3px;height:5px;overflow:hidden;}
@@ -172,7 +207,6 @@ font-family: 'Spectral', serif;
   margin-top:18px;
 }
 .sec-title:first-child{margin-top:0;}
-/* ── TIMELINE ── */
 .timeline{position:relative;padding-left:24px;}
 .timeline::before{
   content:'';
@@ -181,8 +215,7 @@ font-family: 'Spectral', serif;
   width:2px;
   background:var(--line);
 }
-/* Entry: horizontal branch from vertical line to title */
-.tl-entry{position:relative;margin-bottom:18px;}
+.tl-entry{position:relative;margin-bottom:6px;}
 .tl-entry::before{
   content:'';
   position:absolute;
@@ -202,8 +235,18 @@ font-family: 'Spectral', serif;
   white-space:nowrap;flex-shrink:0;
 }
 .tl-org{font-size:calc(var(--font-size) - 1.5px);color:var(--muted);margin-bottom:5px;font-weight:600;}
-
-/* Bullets: sub-vertical line with perpendicular branches per point */
+.tl-org-icon-custom{
+  display:inline-flex;
+  align-items:center;
+  margin-right:5px;
+  flex-shrink:0;
+  vertical-align:middle;
+}
+.tl-org-icon-custom svg{
+  display:block;
+  width:12px;
+  height:12px;
+}
 .tl-bullets{
   list-style:none;
   padding:0;
@@ -220,7 +263,6 @@ font-family: 'Spectral', serif;
   position:relative;
   padding-left:20px;
 }
-/* Perpendicular horizontal branch for each bullet */
 .tl-bullets li::before{
   content:'';
   position:absolute;
@@ -228,16 +270,14 @@ font-family: 'Spectral', serif;
   width:30px;height:1px;
   background:var(--accent-light);
 }
-/* subsection label */
 .subsec{
   font-size:calc(var(--font-size));font-weight:700;
   letter-spacing:1.5px;text-transform:uppercase;
   color:var(--accent-mid);
-  margin:14px 0 10px 0;
+  margin:3px 0;
   display:flex;align-items:center;gap:8px;
 }
 .subsec::after{content:'';flex:1;height:1px;background:var(--line);}
-/* project card */
 .proj-card{
   border-left:3px solid var(--accent);
   padding:8px 0 8px 12px;
@@ -251,6 +291,12 @@ font-family: 'Spectral', serif;
   font-weight:600;
 }
 .proj-bullets{padding-left:14px;}
+.page.page-1 .tl-org{
+  margin-bottom:3px;
+}
+.page.page-1 .subsec{
+  margin:3px 0;
+}
 /* ── FOOTER ── */
 .cv-footer{
   background:var(--accent-dark);
@@ -265,7 +311,6 @@ font-family: 'Spectral', serif;
 .cv-footer a{color:var(--accent-light);text-decoration:none;}
 .cv-footer i{color:var(--accent-mid);margin-right:5px;}
 
-/* ── A4 + PDF (Print to PDF: set margins to Default or None for true 210×297 mm) ── */
 @page{
   size:A4 portrait;
   margin:0;
@@ -299,14 +344,28 @@ font-family: 'Spectral', serif;
     flex:1;
     min-height:0;
   }
-  .proj-card,.hero{
+  .tl-entry{margin-bottom:6px;}
+  .subsec{margin:3px 0;}
+  .proj-card{
+    break-inside:auto;
+    page-break-inside:auto;
+  }
+  .hero{
     break-inside:avoid;
     page-break-inside:avoid;
+  }
+  .sidebar-headshot{
+    width:68mm !important;
+    height:81.5mm !important;
+    margin:0 auto !important;
+    object-fit:cover !important;
+    display:block !important;
   }
 }
 </style>
 </head>
 <body>
+
 
 <!-- ═══════════════════════════ PAGE 1 ═══════════════════════════ -->
 <div class="page">
@@ -319,17 +378,17 @@ font-family: 'Spectral', serif;
   <div class="body">
 
     <!-- SIDEBAR P1 -->
-    <aside class="sidebar">
-      <div class="sidebar-photo">Photo</div>
+    <aside class="sidebar1">
+      <img class="sidebar-headshot" src="dist/images/ready-to-use-photo.png" alt="Kamen Karchev"/>
 
       <div class="sb-badge"><i class="fa fa-user" style="margin-right:5px;"></i>About Me</div>
       <p class="ame-text">
         I am curious and self-motivated to experiment and innovate.
-        Creative from an early age - I was drawn to software engineering whare ideas become reality with a few lines of code and one or two cups of coffee.
-        However my skills don't vanish when i close the IDE - I have an artistic side and I am not afraid to get my hands dirty
-        - from building a youtube channel to working in the event and wedding industry and even sales gigs
-        , throughoughout the years I have built a wide skillset making me adaptable to any situation.
-        That of course does not mean I still don't have a lot to learn - I am exited to work on my career and proffesional experience.
+        Creative from an early age, I was drawn to software engineering, where ideas become reality with a few lines of code and one or two cups of coffee.
+        However, my skills don't vanish when I close the IDE - I have an artistic side and I am not afraid to get my hands dirty
+        - from building a YouTube channel to working in the event and wedding industry and even in sales
+        , throughout the years I have built a wide skillset making me adaptable to any situation.
+        That does not mean I still do not have a lot to learn - I am excited to work on my career and professional experience.
       </p>
 
       <div class="sb-badge"><i class="fa fa-address-card" style="margin-right:5px;"></i>Contact</div>
@@ -341,7 +400,7 @@ font-family: 'Spectral', serif;
         <i class="fa fa-envelope"></i><span>kamen.karchev03@gmail.com</span>
       </div>
       <div class="contact-item">
-        <i class="fa fa-phone"></i><span>+359 ** *** ***</span>
+        <i class="fa fa-phone"></i><span>+359 988975947</span>
       </div>
       <div class="contact-item">
         <i class="fa fa-globe"></i><a href="https://kamenkarchev.com">kamenkarchev.com</a>
@@ -351,14 +410,6 @@ font-family: 'Spectral', serif;
       </div>
       <div class="contact-item">
         <i class="fab fa-github"></i><a href="https://github.com/KamenKarchev">https://github.com/KamenKarchev</a>
-      </div>
-
-      <div class="sb-badge" style="margin-top:16px;"><i class="fa fa-code" style="margin-right:5px;"></i>Technical Skills</div>
-      <div style="margin-top:6px;">
-        <div class="skill-row"><div class="skill-label">Java / Spring Boot / Hibernate</div><div class="skill-track"><div class="skill-fill" style="width:90%;"></div></div></div>
-        <div class="skill-row"><div class="skill-label">C# / .NET / Desktop & Web</div><div class="skill-track"><div class="skill-fill" style="width:90%;"></div></div></div>
-        <div class="skill-row"><div class="skill-label">Kotlin / Android SDK</div><div class="skill-track"><div class="skill-fill" style="width:80%;"></div></div></div>
-        <div class="skill-row"><div class="skill-label">Elixir / Phoenix</div><div class="skill-track"><div class="skill-fill" style="width:80%;"></div></div></div>
       </div>
     </aside>
 
@@ -375,24 +426,24 @@ font-family: 'Spectral', serif;
           <div class="tl-org"><i class="fa fa-building" style="margin-right:5px;font-size:10px;"></i>Quanterall</div>
           <ul class="tl-bullets">
             <li>
-                Began as part of my schools mandatory work practice and continued as I got accepted into the Quanteralls internship program.
+              Began as part of my school's mandatory work practice and continued after I was accepted into Quanterall's <strong>internship program</strong>.
             </li>
             <li>
-              Made a Mobile App with Kotlin, working with a real API.
-              </li>
-              <li>
-                Internship started with Erlang, 
-                Functional Programming Paradigm, Data Structures and even a little Neuro Science. 
-              </li>
-              <li>
-                Chose to implemnt a Graph with DFT and BFT for my Erlang data structure assignment - I wanted to challenge myself.
-              </li>
-              <li>
-                Focused on Elixir for backend development as I continued. 
+              Made a <strong>Mobile App with Kotlin</strong>, working with a real API.
             </li>
-                <li>
-                Implemented the backend logic for a messaging app - inspired by Discord and its Elixir-based backend.
-              </li>
+            <li>
+              The internship started with <strong>Erlang</strong>,
+              the functional programming paradigm, data structures, and even a little neuroscience.
+            </li>
+            <li>
+              Chose to implement a <strong>Graph with DFT and BFT</strong> for my Erlang data structure assignment - I wanted to challenge myself.
+            </li>
+            <li>
+              Focused on <strong>Elixir</strong> for <strong>backend development</strong> as I continued.
+            </li>
+            <li>
+              Implemented the <strong>backend logic for a messaging app</strong> - inspired by Discord and its Elixir-based backend.
+            </li>
           </ul>
         </div>
 
@@ -404,11 +455,11 @@ font-family: 'Spectral', serif;
           <div class="tl-org"><i class="fa fa-network-wired" style="margin-right:5px;font-size:10px;"></i>Asparuhovo Net &middot; Internet Service Provider</div>
           <ul class="tl-bullets">
             <li>
-                Understood how ISP infrastructure works in practice.
+              Understood how <strong>ISP infrastructure</strong> works in practice.
             </li>
-            <li>Reinforcing knowledge of network protocols and hardware.</li>
-            <li>Experienced day-to-day ISP work, from customer issue to the broader service environment behind internet delivery.</li>
-            <li>Modelled a business network in Cisco Packet Tracer.</li>
+            <li>Reinforced my knowledge of <strong>network protocols</strong> and hardware.</li>
+            <li>Experienced day-to-day <strong>ISP work</strong>, from customer issues to the broader service environment behind internet delivery.</li>
+            <li>Modelled a business network in <strong>Cisco Packet Tracer</strong>.</li>
           </ul>
         </div>
 
@@ -422,13 +473,13 @@ font-family: 'Spectral', serif;
             <div class="entry-title">Experiencing work & life in the USA</div>
             <span class="year-pill">Jun-Oct 2024</span>
           </div>
-          <div class="tl-org"><span style="display:inline-flex;align-items:center;margin-right:5px;font-size:10px;" aria-hidden="true"><i class="fa-solid fa-ring"></i><i class="fa-solid fa-ring" style="margin-left:-7px;opacity:.85;"></i></span>Vermont Tent Company &middot; Event & Wedding Industry</div>
+          <div class="tl-org"><span class="tl-org-icon-custom" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 503.607 503.607" fill="currentColor" aria-hidden="true"><path d="M323.147,0c-87.199,0-160.558,61.213-176.85,146.315C61.213,162.589,0,235.948,0,323.148c0,99.513,80.955,180.459,180.459,180.459c87.208,0,160.567-61.205,176.841-146.298c85.101-16.283,146.306-89.642,146.306-176.85C503.607,80.955,422.66,0,323.147,0z M180.459,444.852c-67.106,0-121.705-54.591-121.705-121.705c0-53.265,35.723-100.721,86.117-116.232c11.549,78.554,73.275,140.28,151.829,151.829C281.189,409.147,233.732,444.852,180.459,444.852z M206.915,144.871c15.503-50.403,62.968-86.117,116.232-86.117c67.114,0,121.705,54.599,121.705,121.705c0,53.273-35.714,100.73-86.108,116.241C347.195,218.146,285.469,156.42,206.915,144.871z M299.931,299.931c-48.472-9.417-86.839-47.784-96.248-96.248C252.147,213.101,290.522,251.459,299.931,299.931z M360.037,339.758c0.076-0.697,0.101-1.351,0.168-2.04c0.059-0.797,0.109-1.586,0.176-2.359c0.327-4.197,0.537-8.293,0.537-12.212c0-2.829-0.101-5.817-0.277-8.931c-0.008-0.176-0.008-0.336-0.017-0.52c58.956-16.644,101.015-71.537,101.015-133.237c0-76.355-62.128-138.492-138.492-138.492c-64.126,0-120.916,45.459-135.017,108.074c-2.308,10.215-3.475,20.455-3.475,30.418c0,4.692,0.243,9.443,0.713,14.118c6.371,62.623,54.843,113.177,116.501,122.737c0.092,1.956,0.294,3.903,0.294,5.833c0,3.911-0.277,7.89-0.688,11.885c-0.109,1.116-0.269,2.249-0.411,3.383c-0.176,1.343-0.47,2.703-0.688,4.054c-74.811-10.399-133.195-71.042-140.128-146.927c-0.512-5.59-0.772-10.517-0.772-15.083c0-7.823,0.73-16.241,2.233-25.734v-0.05c12.682-79.897,80.569-137.887,161.439-137.887c90.246,0,163.672,73.434,163.672,163.672C486.82,257.544,434.151,322.82,360.037,339.758z"/></svg></span>Vermont Tent Company &middot; Event & Wedding Industry</div>
           <ul class="tl-bullets">
             <li>
-                Collaborated with people from different cultures and backgrounds while communicating in English.
+              Collaborated with people from <strong>different cultures and backgrounds</strong> while communicating in English.
             </li>
             <li>
-Learned ro be adaptable, resourceful and independent.
+              Learned to be <strong>adaptable, resourceful and independent</strong>.
             </li>
           </ul>
         </div>
@@ -438,20 +489,34 @@ Learned ro be adaptable, resourceful and independent.
             <div class="entry-title">Growing Professionally and Personally</div>
             <span class="year-pill">Jun-Oct 2025</span>
           </div>
-          <div class="tl-org"><span style="display:inline-flex;align-items:center;margin-right:5px;font-size:10px;" aria-hidden="true"><i class="fa-solid fa-ring"></i><i class="fa-solid fa-ring" style="margin-left:-7px;opacity:.85;"></i></span>Vermont Tent Company &middot; Event & Wedding Industry</div>
+          <div class="tl-org"><span class="tl-org-icon-custom" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 503.607 503.607" fill="currentColor" aria-hidden="true"><path d="M323.147,0c-87.199,0-160.558,61.213-176.85,146.315C61.213,162.589,0,235.948,0,323.148c0,99.513,80.955,180.459,180.459,180.459c87.208,0,160.567-61.205,176.841-146.298c85.101-16.283,146.306-89.642,146.306-176.85C503.607,80.955,422.66,0,323.147,0z M180.459,444.852c-67.106,0-121.705-54.591-121.705-121.705c0-53.265,35.723-100.721,86.117-116.232c11.549,78.554,73.275,140.28,151.829,151.829C281.189,409.147,233.732,444.852,180.459,444.852z M206.915,144.871c15.503-50.403,62.968-86.117,116.232-86.117c67.114,0,121.705,54.599,121.705,121.705c0,53.273-35.714,100.73-86.108,116.241C347.195,218.146,285.469,156.42,206.915,144.871z M299.931,299.931c-48.472-9.417-86.839-47.784-96.248-96.248C252.147,213.101,290.522,251.459,299.931,299.931z M360.037,339.758c0.076-0.697,0.101-1.351,0.168-2.04c0.059-0.797,0.109-1.586,0.176-2.359c0.327-4.197,0.537-8.293,0.537-12.212c0-2.829-0.101-5.817-0.277-8.931c-0.008-0.176-0.008-0.336-0.017-0.52c58.956-16.644,101.015-71.537,101.015-133.237c0-76.355-62.128-138.492-138.492-138.492c-64.126,0-120.916,45.459-135.017,108.074c-2.308,10.215-3.475,20.455-3.475,30.418c0,4.692,0.243,9.443,0.713,14.118c6.371,62.623,54.843,113.177,116.501,122.737c0.092,1.956,0.294,3.903,0.294,5.833c0,3.911-0.277,7.89-0.688,11.885c-0.109,1.116-0.269,2.249-0.411,3.383c-0.176,1.343-0.47,2.703-0.688,4.054c-74.811-10.399-133.195-71.042-140.128-146.927c-0.512-5.59-0.772-10.517-0.772-15.083c0-7.823,0.73-16.241,2.233-25.734v-0.05c12.682-79.897,80.569-137.887,161.439-137.887c90.246,0,163.672,73.434,163.672,163.672C486.82,257.544,434.151,322.82,360.037,339.758z"/></svg></span>Vermont Tent Company &middot; Event & Wedding Industry</div>
           <ul class="tl-bullets">
             <li>
-              Took on greater responsibilities and teaching new people the job.
+              Took on <strong>greater responsibilities</strong> and helped train new people on the job.
             </li>
             <li>
-               Mentoring showed me how important it is to be accountable. I began striveing for greater emphaty, self-control and communication skills.
+              Mentoring showed me how important it is to be <strong>accountable</strong>. I began striving for greater <strong>empathy, self-control and communication skills</strong>.
             </li>
-          <!-- <li>
-            Takled online sales as a side gig - improving my confidence and negotiation skills.
-          </li> -->
           </ul>
         </div>
 
+      </div>
+
+      <div class="subsec"><i class="fa-solid fa-clapperboard" style="margin-right:6px;"></i>Media Experience</div>
+      <div class="timeline">
+
+        <div class="tl-entry tl-sub">
+          <div class="entry-head">
+            <div class="entry-title">Experience as a YouTube Content Creator</div>
+            <span class="year-pill">2023-2025</span>
+          </div>
+          <div class="tl-org"><span class="tl-org-icon-custom" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -4 32 32" fill="currentColor" preserveAspectRatio="xMidYMid" aria-hidden="true"><path d="M30.722,20.579 C30.137,21.894 28.628,23.085 27.211,23.348 C27.066,23.375 23.603,24.000 16.010,24.000 L15.990,24.000 C8.398,24.000 4.932,23.375 4.788,23.349 C3.371,23.085 1.861,21.894 1.275,20.578 C1.223,20.461 0.001,17.647 0.001,12.000 C0.001,6.353 1.223,3.538 1.275,3.421 C1.861,2.105 3.371,0.915 4.788,0.652 C4.932,0.625 8.398,-0.000 15.990,-0.000 C23.603,-0.000 27.066,0.625 27.210,0.651 C28.628,0.915 30.137,2.105 30.723,3.420 C30.775,3.538 32.000,6.353 32.000,12.000 C32.000,17.647 30.775,20.461 30.722,20.579 ZM28.893,4.230 C28.581,3.529 27.603,2.759 26.845,2.618 C26.813,2.612 23.386,2.000 16.010,2.000 C8.615,2.000 5.185,2.612 5.152,2.618 C4.394,2.759 3.417,3.529 3.104,4.234 C3.094,4.255 2.002,6.829 2.002,12.000 C2.002,17.170 3.094,19.744 3.106,19.770 C3.417,20.471 4.394,21.241 5.153,21.382 C5.185,21.388 8.615,22.000 15.990,22.000 L16.010,22.000 C23.386,22.000 26.813,21.388 26.846,21.382 C27.604,21.241 28.581,20.471 28.894,19.766 C28.904,19.744 29.998,17.170 29.998,12.000 C29.998,6.830 28.904,4.255 28.893,4.230 ZM13.541,17.846 C13.379,17.949 13.193,18.000 13.008,18.000 C12.842,18.000 12.676,17.959 12.525,17.875 C12.206,17.699 12.008,17.364 12.008,17.000 L12.008,7.000 C12.008,6.637 12.204,6.303 12.521,6.127 C12.838,5.950 13.227,5.958 13.534,6.149 L21.553,11.105 C21.846,11.286 22.026,11.606 22.027,11.951 C22.028,12.296 21.852,12.618 21.560,12.801 L13.541,17.846 ZM14.009,8.794 L14.009,15.189 L19.137,11.963 L14.009,8.794 Z"/></svg></span>YouTube &middot; Monetised Channel</div>
+          <ul class="tl-bullets">
+            <li>
+              Built a <strong>YouTube channel</strong> - <a href="https://www.youtube.com/watch?v=yHK1hsz3oXY" target="_blank" rel="noopener noreferrer">with one of my videos about AI gaining <strong>200,000+ views</strong>.</a>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div class="sec-title">Education</div>
@@ -462,8 +527,8 @@ Learned ro be adaptable, resourceful and independent.
         </div>
         <div class="tl-org"><i class="fa fa-graduation-cap" style="margin-right:5px;font-size:10px;"></i>Technical University of Varna &middot; Expected graduation June 2026</div>
         <ul class="proj-bullets">
-          <li>4-year curriculum thoroughly covering the foundations of modern software engineering, from programming and systems to architecture, security, and project delivery.</li>
-          <li>Explored: Algorithms, OOP, Databases, Computer Networks, OS, Web Technologies, Software Architecture, Design Patterns, Information Security, Project Management and more.</li>
+          <li>4-year curriculum thoroughly covering <strong>modern software engineering</strong> and computer science fundamentals.
+          <li>Explored: <strong>Algorithms, OOP, Databases, Networks</strong>, OS, Web Technologies, <strong>Software Architecture, Design Patterns</strong>, Low-level Programming, Project Management, Leadership and more.</li>
         </ul>
       </div>
     </main>
@@ -481,17 +546,20 @@ Learned ro be adaptable, resourceful and independent.
 <!-- ═══════════════════════════ PAGE 2 ═══════════════════════════ -->
 <div class="page">
 
-
   <div class="body">
 
     <!-- SIDEBAR P2 -->
-    <aside class="sidebar">
-        <div style="margin-top:6px;">
-            <div class="skill-row"><div class="skill-label">React / JavaScript / TypeScript</div><div class="skill-track"><div class="skill-fill" style="width:70%;"></div></div></div>
-            <div class="skill-row"><div class="skill-label">C++</div><div class="skill-track"><div class="skill-fill" style="width:50%;"></div></div></div>
-            <div class="skill-row"><div class="skill-label">Web Design</div><div class="skill-track"><div class="skill-fill" style="width:50%;"></div></div></div>
-          </div>
-
+    <aside class="sidebar2">
+      <div class="sb-badge" style="margin-top:16px;"><i class="fa fa-code" style="margin-right:5px;"></i>Technical Skills</div>
+      <div style="margin-top:6px;">
+        <div class="skill-row"><div class="skill-label">Java / Spring Boot / Hibernate</div><div class="skill-track"><div class="skill-fill" style="width:90%;"></div></div></div>
+        <div class="skill-row"><div class="skill-label">C# / .NET / Desktop & Web</div><div class="skill-track"><div class="skill-fill" style="width:90%;"></div></div></div>
+        <div class="skill-row"><div class="skill-label">Kotlin / Android SDK</div><div class="skill-track"><div class="skill-fill" style="width:80%;"></div></div></div>
+        <div class="skill-row"><div class="skill-label">Elixir / Phoenix</div><div class="skill-track"><div class="skill-fill" style="width:80%;"></div></div></div>
+        <div class="skill-row"><div class="skill-label">React / JavaScript / TypeScript</div><div class="skill-track"><div class="skill-fill" style="width:70%;"></div></div></div>
+        <div class="skill-row"><div class="skill-label">C++</div><div class="skill-track"><div class="skill-fill" style="width:50%;"></div></div></div>
+        <div class="skill-row"><div class="skill-label">Web Design</div><div class="skill-track"><div class="skill-fill" style="width:50%;"></div></div></div>
+      </div>
 
       <div class="sb-badge"><i class="fa fa-comment" style="margin-right:5px;"></i>Soft Skills</div>
       <ul class="pill-list">
@@ -547,26 +615,24 @@ Learned ro be adaptable, resourceful and independent.
         <li>Magic Tricks</li>
         <li>Card Games</li>
       </ul>
-
     </aside>
 
     <!-- MAIN P2 -->
     <main class="main">
 
-        <div class="proj-card">
-          <div class="entry-head">
-            <div class="entry-title">Vocational High School of Electrical Engineering</div>
-            <span class="year-pill">2017 – 2022</span>
-          </div>
-          <div class="tl-org"><i class="fa fa-university" style="margin-right:5px;font-size:10px;"></i>Varna, Bulgaria</div>
-          <ul class="proj-bullets">
-            <li>Professional Qualification Certificate <strong>GPA: 3.58</strong></li>
-            <li>High School Diploma <strong>GPA: 3.36</strong></li>
-            <li>5-year curriculum focusing on OOP and software development basics.</li>
-            <li>Explored: C#, Algorithms, Data Structures, .NET, Windows Forms, Xamarin, Blazor, Web Development, mySQL, Network Protocols, Operating Systems, and more.</li>
-          </ul>
+      <div class="proj-card">
+        <div class="entry-head">
+          <div class="entry-title">Vocational High School of Electrical Engineering</div>
+          <span class="year-pill">2017 – 2022</span>
         </div>
-
+        <div class="tl-org"><i class="fa fa-university" style="margin-right:5px;font-size:10px;"></i>Varna, Bulgaria</div>
+        <ul class="proj-bullets">
+          <li>Professional Qualification Certificate <strong>GPA: 3.58</strong></li>
+          <li>High School Diploma <strong>GPA: 3.36</strong></li>
+          <li>5-year curriculum focusing on <strong>OOP</strong> and software development basics.</li>
+          <li>Explored: <strong>C#, Algorithms, Data Structures, .NET</strong>, Windows Forms, Xamarin, Blazor, Web Development, MySQL, <strong>Network Protocols</strong>, Operating Systems, and more.</li>
+        </ul>
+      </div>
 
       <div class="sec-title" style="margin-top:16px;">Projects</div>
 
@@ -577,11 +643,11 @@ Learned ro be adaptable, resourceful and independent.
         </div>
         <div class="proj-subtitle">Successful Team Management and Its Role in Preventing Crisis in Cybersecurity</div>
         <ul class="proj-bullets">
-          <li>Co-authored and presented a paper at the TU-Varna Student Science Session.</li>
-          <li>Covered Scrum, SOC / CSIRT operations, and NIST / ISO response frameworks through real case studies.</li>
+          <li>Co-authored and presented a <strong>paper at the TU-Varna Student Science Session</strong>.</li>
+          <li>Covered <strong>Scrum, SOC / CSIRT operations</strong>, and <strong>NIST / ISO response frameworks</strong> through real case studies.</li>
         </ul>
       </div>
-      
+
       <div class="proj-card">
         <div class="entry-head">
           <div class="entry-title">Scalable User Management Service API on Phoenix / Elixir</div>
@@ -589,11 +655,11 @@ Learned ro be adaptable, resourceful and independent.
         </div>
         <div class="proj-subtitle">DopeyUserAPI</div>
         <ul class="proj-bullets">
-          <li>Built a backend service for registration, login, email verification, password reset, and social authentication.</li>
-          <li>Implemented with Elixir, Phoenix, PostgreSQL, Docker, Oban, Prometheus, and Grafana.</li>
+          <li>Built a <strong>backend service</strong> for registration, login, <strong>email verification, password reset</strong>, and social authentication.</li>
+          <li>Implemented with <strong>Elixir, Phoenix, PostgreSQL, Docker</strong>, Oban, Prometheus, and Grafana.</li>
         </ul>
       </div>
-      
+
       <div class="proj-card">
         <div class="entry-head">
           <div class="entry-title">Role-Based Winery Operations Platform</div>
@@ -601,11 +667,11 @@ Learned ro be adaptable, resourceful and independent.
         </div>
         <div class="proj-subtitle">Team Project</div>
         <ul class="proj-bullets">
-          <li>Built a multi-role platform for orders, inventory, task management, and notifications.</li>
-          <li>Developed in Java as a university team project focused on software architecture and design patterns.</li>
+          <li>Built a <strong>multi-role platform</strong> for orders, inventory, <strong>task management</strong>, and notifications.</li>
+          <li>Developed in <strong>Java</strong> as a university team project focused on <strong>software architecture and design patterns</strong>.</li>
         </ul>
       </div>
-      
+
       <div class="proj-card">
         <div class="entry-head">
           <div class="entry-title">AI-Assisted Product Discovery Web Crawler</div>
@@ -613,10 +679,11 @@ Learned ro be adaptable, resourceful and independent.
         </div>
         <div class="proj-subtitle">ShopAssist</div>
         <ul class="proj-bullets">
-          <li>Built a product search tool that collects listings and filters them by user preferences.</li>
-          <li>Uses web scraping, ASP.NET, and AI-based ranking for product comparison.</li>
+          <li>Built a <strong>product search tool</strong> that collects listings and filters them by user preferences.</li>
+          <li>Uses <strong>web scraping, ASP.NET</strong>, and <strong>AI-based ranking</strong> for product comparison.</li>
         </ul>
       </div>
+
       <div class="sec-title">Certificates</div>
       <ul class="proj-bullets">
         <li><a href="https://kamenkarchev.com/documents/Student_Science_Session_Certificate.pdf">Student Science Session Certificate</a></li>
@@ -633,6 +700,7 @@ Learned ro be adaptable, resourceful and independent.
   </footer>
 
 </div><!-- /page 2 -->
+
 
 </body>
 </html>

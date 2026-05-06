@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+CV.html
+.cursorignore
+prompt.md
+v3plan.md

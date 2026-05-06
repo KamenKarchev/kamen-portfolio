@@ -6,37 +6,37 @@ const EN_TIMELINE = [
     year: '2017–2022',
     title: 'High school: electrical engineering & code',
     body: 'Vocational HS Varna — OOP, C#, .NET, Xamarin, Blazor, mySQL; first structured contact with software and hardware.',
-    image: '/images/timeline-before-uni.jpg',
+    image: '/images/high-school-room.jpg',
   },
   {
     year: '2022–2023',
     title: 'Quanterall — first real codebase',
     body: 'Internship: Kotlin Android app with a real API; Erlang FP and data structures (graph + DFT/BFT); Elixir backend; Discord-inspired messaging app.',
-    image: '/images/timeline-internship.jpg',
+    image: '/images/quanteral-internship.jpg',
   },
   {
     year: '2022–2026',
     title: "TU Varna — bachelor's degree",
     body: 'Software & Internet Technologies — algorithms, databases, networks, architecture, security, design patterns, and team projects.',
-    image: '/images/timeline-year-1.jpg',
+    image: '/images/TU-Varna.jpg',
   },
   {
     year: 'Jun–Oct 2024',
     title: 'USA · Vermont Tent Company',
     body: 'Working and living abroad — English-only environment, cross-cultural collaboration, hands-on adaptability and independence.',
-    image: '/images/timeline-media-work.jpg',
+    image: '/images/vermont-tent-company.jpeg',
   },
   {
     year: '2024–2025',
     title: 'Projects & research',
     body: 'Winery team platform (Java), ShopAssist (ASP.NET + AI ranking), cybersecurity team management paper presented at TU-Varna Student Science Session.',
-    image: '/images/timeline-year-2.jpg',
+    image: '/images/research-projects.webp',
   },
   {
     year: 'May 2025 – now',
     title: 'ISP internship + final push',
     body: 'Asparuhovo Net — ISP operations, network protocols, Packet Tracer; DopeyUserAPI (Phoenix · Oban · Prometheus · Grafana); graduating June 2026.',
-    image: '/images/timeline-now.jpg',
+    image: '/images/isp-work.jpg',
   },
 ]
 
@@ -59,7 +59,7 @@ const EN_PROJECTS = [
     body: 'University team project — a full winery management system with role-based access for CEO, managers, warehouse staff and accountants. Covers order processing, inventory, worker scoring, automated task generation, and real-time notifications.',
     tags: ['Java', 'OOP', 'Team project', 'SQL', 'Role-based access'],
     link: 'https://github.com/KostadinTodorov/winery',
-    image: '/images/project-winery.jpg',
+    image: '/images/winary-app.png',
   },
   {
     id: 'shop-assist',
@@ -68,7 +68,7 @@ const EN_PROJECTS = [
     body: 'An ASP.NET service that webcrawls e-commerce sites, filters items by user-defined criteria, and surfaces the best matches. AI integration planned to rank and explain results in natural language.',
     tags: ['C#', 'ASP.NET', 'Web scraping', 'AI', 'In progress'],
     link: '#',
-    image: '/images/project-shop-assist.jpg',
+    image: '/images/ShopAssist.jpg',
   },
   {
     id: 'dopey-user-api',
@@ -77,7 +77,7 @@ const EN_PROJECTS = [
     body: 'A Phoenix/Elixir backend covering authentication, user flows, JWT tokens, email logic, and OAuth.',
     tags: ['Elixir', 'Phoenix', 'PostgreSQL', 'Docker', 'OAuth'],
     link: 'https://github.com/KamenKarchev',
-    image: '/images/project-dopeyuserapi.jpg',
+    image: '/images/DopeyAPI.jpg',
   },
   {
     id: 'pipe-prompt',
@@ -104,7 +104,7 @@ const EN_PROJECTS = [
     body: 'OOP course project — a command-line finite-state machine in Java covering state transitions, input parsing, and acceptance logic.',
     tags: ['Java', 'OOP', 'Automata'],
     link: 'https://github.com/KamenKarchev/oop1-project-T4--Finite-state_machine-',
-    image: '/images/project-fsm.jpg',
+    image: '/images/finite-state-machine.png',
   },
   // {
   //   id: 'front-end-ui',
@@ -178,37 +178,37 @@ const BG_TIMELINE = [
     year: '2017-2022',
     title: 'Гимназия: електротехника и код',
     body: 'Професионална гимназия във Варна - ООП, C#, .NET, Xamarin, Blazor, mySQL; първият ми структуриран досег със софтуер и хардуер.',
-    image: '/images/timeline-before-uni.jpg',
+    image: '/images/high-school-room.jpg',
   },
   {
     year: '2022-2023',
     title: 'Quanterall - първа реална кодова база',
     body: 'Стаж: Kotlin Android приложение с реален API; Erlang функционално програмиране и структури от данни; Elixir backend; messaging app, вдъхновен от Discord.',
-    image: '/images/timeline-internship.jpg',
+    image: '/images/quanteral-internship.jpg',
   },
   {
     year: '2022-2026',
     title: 'ТУ Варна - бакалавър',
     body: 'Софтуерни и интернет технологии - алгоритми, бази данни, мрежи, архитектура, сигурност, design patterns и екипни проекти.',
-    image: '/images/timeline-year-1.jpg',
+    image: '/images/TU-Varna.jpg',
   },
   {
     year: 'юни-окт 2024',
     title: 'САЩ · Vermont Tent Company',
     body: 'Работа и живот в чужбина - среда само на английски, междукултурна комуникация, практична адаптивност и самостоятелност.',
-    image: '/images/timeline-media-work.jpg',
+    image: '/images/vermont-tent-company.jpeg',
   },
   {
     year: '2024-2025',
     title: 'Проекти и изследователска работа',
     body: 'Winery екипна платформа (Java), ShopAssist (ASP.NET + AI ranking), доклад за управление на екипи в киберсигурността, представен на студентска научна сесия в ТУ-Варна.',
-    image: '/images/timeline-year-2.jpg',
+    image: '/images/research-projects.webp',
   },
   {
     year: 'май 2025 - сега',
     title: 'ISP стаж + финален тласък',
     body: 'Аспарухово Нет - ISP операции, мрежови протоколи, Packet Tracer; DopeyUserAPI (Phoenix · Oban · Prometheus · Grafana); дипломиране юни 2026.',
-    image: '/images/timeline-now.jpg',
+    image: '/images/isp-work.jpg',
   },
 ]
 
@@ -220,7 +220,7 @@ const BG_PROJECTS = [
     body: 'Университетски екипен проект - цялостна система за управление на винарна с роли за CEO, мениджъри, складови служители и счетоводители. Покрива поръчки, инвентар, оценяване на работници, автоматични задачи и известия в реално време.',
     tags: ['Java', 'ООП', 'Екипен проект', 'SQL', 'Ролеви достъп'],
     link: 'https://github.com/KostadinTodorov/winery',
-    image: '/images/project-winery.jpg',
+    image: '/images/winary-app.png',
   },
   {
     id: 'shop-assist',
@@ -229,7 +229,7 @@ const BG_PROJECTS = [
     body: 'ASP.NET услуга, която обхожда онлайн магазини, филтрира продукти по критерии на потребителя и показва най-добрите попадения. Планирана AI интеграция за ranking и обяснения на естествен език.',
     tags: ['C#', 'ASP.NET', 'Web scraping', 'AI', 'В разработка'],
     link: '#',
-    image: '/images/project-shop-assist.jpg',
+    image: '/images/ShopAssist.jpg',
   },
   {
     id: 'dopey-user-api',
@@ -238,7 +238,7 @@ const BG_PROJECTS = [
     body: 'Phoenix/Elixir backend за authentication, user flows, JWT tokens, email logic и OAuth.',
     tags: ['Elixir', 'Phoenix', 'PostgreSQL', 'Docker', 'OAuth'],
     link: 'https://github.com/KamenKarchev',
-    image: '/images/project-dopeyuserapi.jpg',
+    image: '/images/DopeyAPI.jpg',
   },
   {
     id: 'pipe-prompt',
@@ -265,7 +265,7 @@ const BG_PROJECTS = [
     body: 'ООП курсов проект - command-line finite-state machine на Java с преходи между състояния, input parsing и acceptance logic.',
     tags: ['Java', 'ООП', 'Автомати'],
     link: 'https://github.com/KamenKarchev/oop1-project-T4--Finite-state_machine-',
-    image: '/images/project-fsm.jpg',
+    image: '/images/finite-state-machine.png',
   },
   {
     id: 'front-end-ui',
@@ -515,5 +515,5 @@ export const NAV_LINKS = CONTENT.en.nav.links
 export const QUICK_CARDS = CONTENT.en.hero.quickCards
 export const TIMELINE = CONTENT.en.feature.timeline
 export const PROJECTS = CONTENT.en.projects.items
-export { EN_PROJECTS }
+export { EN_PROJECTS, BG_PROJECTS }
 export const CONTACT = CONTENT.en.contact.items

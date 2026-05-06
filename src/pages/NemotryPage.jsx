@@ -1,16 +1,21 @@
+import { useMemo } from 'react'
 import Masthead from '../components/Masthead'
 import SectionHead from '../components/SectionHead'
-import NemotryArticle from '../components/NemotryDebug'
+import { SpaceDebugView } from '../components/SpaceDebugView'
 import NewspaperPage from '../components/NewspaperPage'
 import Footer from '../components/Footer'
 
 export default function NemotryPage({ copy }) {
+  const concepts = useMemo(
+    () => copy.projects.items.map(p => ({ id: p.id, value: p.value ?? 1 })),
+    [copy.projects.items],
+  )
+
   return (
     <main className="wrap">
-      <Masthead copy={copy.masthead} />
       <NewspaperPage tall>
         <SectionHead {...copy.sections.projects} id="nemotry" />
-        <NemotryArticle />
+        <SpaceDebugView concepts={concepts} />
       </NewspaperPage>
       <Footer copy={copy.footer} />
     </main>
