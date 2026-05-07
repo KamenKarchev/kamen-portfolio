@@ -177,6 +177,14 @@ const EN_CONTACT = [
     gradient: 'linear-gradient(100deg, #d85b50 0%, #bb4a4f 60%, #c0392b 100%)',
     description: 'Best way to reach me directly',
   },
+  {
+    label: 'Certificates',
+    to: '/#contact-certificates',
+    text: 'Diplomas & credentials',
+    brand: 'certificates',
+    gradient: 'linear-gradient(100deg, #5f5247 0%, #8b7355 50%, #a68b6b 100%)',
+    description: 'High school, professional qualification, science session',
+  },
 ]
 
 const BG_TIMELINE = [
@@ -344,6 +352,14 @@ const BG_CONTACT = [
     gradient: 'linear-gradient(100deg, #d85b50 0%, #bb4a4f 60%, #c0392b 100%)',
     description: 'Най-директният начин за връзка',
   },
+  {
+    label: 'Сертификати',
+    to: '/#contact-certificates',
+    text: 'Дипломи и документи',
+    brand: 'certificates',
+    gradient: 'linear-gradient(100deg, #5f5247 0%, #8b7355 50%, #a68b6b 100%)',
+    description: 'Средно образование, професионална квалификация, студентска сесия',
+  },
 ]
 
 export const CONTENT = {
@@ -428,6 +444,15 @@ export const CONTENT = {
       deck: "Graduating TU Varna in June 2026. I work with Elixir, Java, Kotlin, C#, and React. I'm looking for roles where I can keep building real things. Reach out through any channel below.",
       items: EN_CONTACT,
       cvHref: 'https://kamenkarchev.com/cv',
+      certificates: {
+        title: 'Certificates',
+        ariaLabel: 'Certificates and diplomas',
+        links: [
+          { href: '/documents/High_School_Diploma', label: 'High school diploma' },
+          { href: '/documents/Professional_Qualification_Certificate', label: 'Professional qualification certificate' },
+          { href: '/documents/Student_Science_Session_Certificate.pdf', label: 'Student science session certificate' },
+        ],
+      },
     },
     footer: {
       copyright: '© 2026 Kamen Karchev',
@@ -515,6 +540,15 @@ export const CONTENT = {
       deck: 'Дипломиране в ТУ Варна през юни 2026. Работя с Java, Elixir, Kotlin, C# и React. Свържи се през който канал е най-удобен.',
       items: BG_CONTACT,
       cvHref: 'https://kamenkarchev.com/cv',
+      certificates: {
+        title: 'Сертификати',
+        ariaLabel: 'Сертификати и дипломи',
+        links: [
+          { href: '/documents/High_School_Diploma', label: 'Диплома за средно образование' },
+          { href: '/documents/Professional_Qualification_Certificate', label: 'Свидетелство за професионална квалификация' },
+          { href: '/documents/Student_Science_Session_Certificate.pdf', label: 'Сертификат от студентска научна сесия' },
+        ],
+      },
     },
     footer: {
       copyright: 'Камен Кърчев',

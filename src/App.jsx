@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Nav from './components/Nav'
 import HomePage from './pages/HomePage'
 import NemotryPage from './pages/NemotryPage'
+import DocumentRoute from './pages/DocumentRoute'
 import { CONTENT } from './data/content'
 
 const DEFAULT_LANGUAGE = 'en'
@@ -44,6 +45,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage copy={copy} />} />
         <Route path="/nemotry" element={<NemotryPage copy={copy} />} />
+        <Route path="/documents/:slug" element={<DocumentRoute />} />
       </Routes>
     </BrowserRouter>
   )

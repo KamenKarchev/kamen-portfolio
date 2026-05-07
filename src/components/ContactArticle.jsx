@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { motion as Motion } from 'motion/react'
+
+const MotionLink = Motion(Link)
 
 /* Must match .page width in public/cv-preview.html (210mm ≈ 794px) */
 const CV_NATURAL_W = 794
@@ -87,14 +90,20 @@ export default function ContactArticle({ copy }) {
         <div className="profile-cards">
           {copy.items.map((item, i) => {
             const Icon = ICONS[item.brand] || DocumentIcon
+            const Cmp = item.to ? MotionLink : Motion.a
+            const linkProps = item.to
+              ? { to: item.to }
+              : {
+                  href: item.href,
+                  target: item.external ? '_blank' : undefined,
+                  rel: item.external ? 'noreferrer' : undefined,
+                }
             return (
-              <Motion.a
+              <Cmp
                 key={item.label}
                 className="profile-card"
                 data-brand={item.brand}
-                href={item.href}
-                target={item.external ? '_blank' : undefined}
-                rel={item.external ? 'noreferrer' : undefined}
+                {...linkProps}
                 style={{ '--profile-gradient': item.gradient }}
                 custom={i}
                 variants={cardVariants}
@@ -113,10 +122,31 @@ export default function ContactArticle({ copy }) {
                   <span className="profile-card-text">{item.text}</span>
                   <span className="profile-card-desc">{item.description}</span>
                 </div>
-              </Motion.a>
+              </Cmp>
             )
           })}
         </div>
+
+        {copy.certificates && (
+          <div id="contact-certificates" className="contact-certificates">
+            <p className="contact-certificates__title">{copy.certificates.title}</p>
+            <ul className="contact-certificates__list" aria-label={copy.certificates.ariaLabel}>
+              {copy.certificates.links.map(entry => (
+                <li key={entry.href}>
+                  {entry.href.endsWith('.pdf') ? (
+                    <a href={entry.href} className="contact-certificates__link">
+                      {entry.label}
+                    </a>
+                  ) : (
+                    <Link to={entry.href} className="contact-certificates__link">
+                      {entry.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="cv-preview-pane-wrap">
           <div className="cv-preview-pane-container">
