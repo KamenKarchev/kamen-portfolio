@@ -18,6 +18,7 @@ export default function Hero({ copy }) {
         <span className="smallcaps">{copy.eyebrow}</span>
         <h2>{copy.title}</h2>
         <p>{copy.body}</p>
+        <div className="hero-actions-grid">
         <div className="hero-actions">
           <Motion.a className="btn btn-primary" href="#feature" whileHover={{ y: -2 }} whileTap={{ scale: .97 }}>
             {copy.actions.feature}
@@ -36,6 +37,7 @@ export default function Hero({ copy }) {
               <span>{c.value}</span>
             </div>
           ))}
+        </div>
         </div>
       </Motion.article>
 

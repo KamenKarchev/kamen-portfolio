@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion as Motion } from 'motion/react'
-
-const MotionLink = Motion(Link)
+import { AnimatePresence, motion as Motion } from 'motion/react'
 
 /* Must match .page width in public/cv-preview.html (210mm ≈ 794px) */
 const CV_NATURAL_W = 794
@@ -47,6 +45,150 @@ const cardVariants = {
   }),
 }
 
+function CertificatesExpandable({ item, certs, index }) {
+  const shellRef = useRef(null)
+  const panelRef = useRef(null)
+  const [open, setOpen] = useState(
+    () => typeof window !== 'undefined' && window.location.hash === '#contact-certificates',
+  )
+
+  const close = useCallback(() => {
+    setOpen(false)
+    if (window.location.hash === '#contact-certificates') {
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
+    }
+  }, [])
+
+  const openMenu = useCallback(() => {
+    setOpen(true)
+  }, [])
+
+  useEffect(() => {
+    const onHash = () => {
+      const shouldOpen = window.location.hash === '#contact-certificates'
+      setOpen(shouldOpen)
+      if (shouldOpen) {
+        requestAnimationFrame(() => {
+          shellRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        })
+      }
+    }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.location.hash !== '#contact-certificates') return
+    requestAnimationFrame(() => {
+      shellRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!open) return undefined
+    const onKey = e => {
+      if (e.key === 'Escape') close()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, close])
+
+  useEffect(() => {
+    if (!open || !panelRef.current) return undefined
+    const id = window.setTimeout(() => {
+      panelRef.current?.querySelector('.contact-certificates__link')?.focus()
+    }, 280)
+    return () => window.clearTimeout(id)
+  }, [open])
+
+  return (
+    <Motion.div
+      ref={shellRef}
+      layout
+      id="contact-certificates"
+      data-brand="certificates"
+      className={`profile-card profile-card--certificates-shell${open ? ' profile-card--certificates-shell-open' : ''}`}
+      style={{ '--profile-gradient': item.gradient }}
+      custom={index}
+      variants={cardVariants}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: .1 }}
+      whileHover={!open ? { scale: 1.015, y: -3 } : undefined}
+      whileTap={!open ? { scale: 0.98 } : undefined}
+      transition={{ duration: .18, layout: { duration: .38, ease: [.16, 1, .3, 1] } }}
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        {!open ? (
+          <Motion.button
+            key="closed"
+            type="button"
+            layout
+            className="profile-card__cert-trigger"
+            onClick={openMenu}
+            aria-expanded={false}
+            aria-controls="contact-certificates-panel"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: .2 }}
+          >
+            <div className="profile-card-icon">
+              <DocumentIcon />
+            </div>
+            <div className="profile-card-body">
+              <span className="profile-card-label">{item.label}</span>
+              <span className="profile-card-text">{item.text}</span>
+              <span className="profile-card-desc">{item.description}</span>
+            </div>
+          </Motion.button>
+        ) : (
+          <Motion.div
+            key="open"
+            ref={panelRef}
+            layout
+            id="contact-certificates-panel"
+            role="region"
+            aria-label={certs.ariaLabel}
+            className="profile-card__cert-panel"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: .22 }}
+          >
+            <div className="profile-card__cert-panel-head">
+              <button
+                type="button"
+                className="profile-card__cert-back"
+                onClick={close}
+                aria-label={certs.closeLabel}
+              >
+                ←
+              </button>
+              <p className="contact-certificates__title contact-certificates__title--panel">{certs.title}</p>
+            </div>
+            <ul className="contact-certificates__list">
+              {certs.links.map(entry => (
+                <li key={entry.href}>
+                  {entry.href.endsWith('.pdf') ? (
+                    <a href={entry.href} className="contact-certificates__link">
+                      {entry.label}
+                    </a>
+                  ) : (
+                    <Link to={entry.href} className="contact-certificates__link">
+                      {entry.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </Motion.div>
+        )}
+      </AnimatePresence>
+    </Motion.div>
+  )
+}
+
 export default function ContactArticle({ copy }) {
   const clipRef = useRef(null)
   const [layout, setLayout] = useState(() => ({
@@ -89,21 +231,25 @@ export default function ContactArticle({ copy }) {
         {/* Branded profile cards */}
         <div className="profile-cards">
           {copy.items.map((item, i) => {
+            if (item.brand === 'certificates' && copy.certificates) {
+              return (
+                <CertificatesExpandable
+                  key={item.label}
+                  item={item}
+                  certs={copy.certificates}
+                  index={i}
+                />
+              )
+            }
             const Icon = ICONS[item.brand] || DocumentIcon
-            const Cmp = item.to ? MotionLink : Motion.a
-            const linkProps = item.to
-              ? { to: item.to }
-              : {
-                  href: item.href,
-                  target: item.external ? '_blank' : undefined,
-                  rel: item.external ? 'noreferrer' : undefined,
-                }
             return (
-              <Cmp
+              <Motion.a
                 key={item.label}
                 className="profile-card"
                 data-brand={item.brand}
-                {...linkProps}
+                href={item.href}
+                target={item.external ? '_blank' : undefined}
+                rel={item.external ? 'noreferrer' : undefined}
                 style={{ '--profile-gradient': item.gradient }}
                 custom={i}
                 variants={cardVariants}
@@ -122,31 +268,10 @@ export default function ContactArticle({ copy }) {
                   <span className="profile-card-text">{item.text}</span>
                   <span className="profile-card-desc">{item.description}</span>
                 </div>
-              </Cmp>
+              </Motion.a>
             )
           })}
         </div>
-
-        {copy.certificates && (
-          <div id="contact-certificates" className="contact-certificates">
-            <p className="contact-certificates__title">{copy.certificates.title}</p>
-            <ul className="contact-certificates__list" aria-label={copy.certificates.ariaLabel}>
-              {copy.certificates.links.map(entry => (
-                <li key={entry.href}>
-                  {entry.href.endsWith('.pdf') ? (
-                    <a href={entry.href} className="contact-certificates__link">
-                      {entry.label}
-                    </a>
-                  ) : (
-                    <Link to={entry.href} className="contact-certificates__link">
-                      {entry.label}
-                    </Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
 
         <div className="cv-preview-pane-wrap">
           <div className="cv-preview-pane-container">

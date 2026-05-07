@@ -362,6 +362,16 @@ a:active{
     display:block !important;
   }
 }
+
+/* Screen / iframe preview: hide page-2 secondary sidebar (skills column); full-width main. Print unchanged. */
+@media screen {
+  aside.sidebar2 {
+    display: none !important;
+  }
+  .page + .page .body {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
 </head>
 <body>
